@@ -1,0 +1,18 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "flutter-ai-local",
+  "description": "Local marketplace for this repo's project-scoped plugins",
+  "owner": {
+    "name": "jggomez"
+  },
+  "plugins": [
+    {
+      "name": "senior-dev-flutter",
+      "description": "Senior Flutter orchestrator, architecture decisions, profiling, and release engineering.",
+      "author": {
+        "name": "jggomez"
+      },
+      "source": "./senior-dev-flutter"
+    }
+  ]
+}

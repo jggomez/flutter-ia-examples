@@ -1,0 +1,24 @@
+.DS_Store
+*.swp
+
+# Flutter/Dart
+**/.dart_tool/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+**/.packages
+**/build/
+**/ios/Pods/
+**/ios/.symlinks/
+**/.idea/
+**/*.iml
+
+# Python / notebooks
+**/__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Large on-device LLM weights (downloaded at build/run time, not committed)
+*.litertlm
+*.task
+*.gguf
