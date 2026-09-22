@@ -22,3 +22,7 @@ venv/
 *.litertlm
 *.task
 *.gguf
+
+# Local secrets (HF tokens etc.) passed via --dart-define-from-file, never committed
+**/dart_defines.local.json
+**/*.local.json

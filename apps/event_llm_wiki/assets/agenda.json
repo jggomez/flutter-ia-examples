@@ -1,0 +1,250 @@
+{
+  "talks": [
+    {
+      "id": "talk-001",
+      "title": "On-Device LLMs: Why the Edge Is Eating the Cloud",
+      "abstract": "A tour of the on-device inference landscape in 2026 — LiteRT-LM, GGUF/llama.cpp, and CoreML — and the latency, privacy, and cost arguments for running a quantized model on the phone instead of a server round-trip.",
+      "speakers": [
+        { "name": "Ada Solano", "title": "Principal Engineer", "company": "Nimbus AI" }
+      ],
+      "day": "dayOne",
+      "track": "engineering",
+      "startTime": "2026-11-10T09:00:00",
+      "durationMinutes": 45
+    },
+    {
+      "id": "talk-002",
+      "title": "Quantization in Practice: int4, int8, and the Quality Cliff",
+      "abstract": "A hands-on comparison of dynamic_int4 vs int8 vs fp16 checkpoints of the same model family, benchmarking latency, memory footprint, and answer quality on real mobile hardware.",
+      "speakers": [
+        { "name": "Marcus Webb", "title": "ML Systems Engineer", "company": "Litebeam" }
+      ],
+      "day": "dayOne",
+      "track": "engineering",
+      "startTime": "2026-11-10T10:00:00",
+      "durationMinutes": 45
+    },
+    {
+      "id": "talk-003",
+      "title": "Flutter + Native Inference: Bridging Dart and the NPU",
+      "abstract": "How Flutter plugins expose native ML runtimes to Dart, the isolate/platform-channel tradeoffs for streaming token output, and lessons learned shipping an on-device chat assistant to production.",
+      "speakers": [
+        { "name": "Priya Natarajan", "title": "Staff Mobile Engineer", "company": "Acme Corp" },
+        { "name": "Diego Fuentes", "title": "Mobile Engineer", "company": "Acme Corp" }
+      ],
+      "day": "dayOne",
+      "track": "engineering",
+      "startTime": "2026-11-10T11:00:00",
+      "durationMinutes": 30
+    },
+    {
+      "id": "talk-004",
+      "title": "Lexical RAG: You Don't Always Need Embeddings",
+      "abstract": "A case study on replacing a vector-embedding retrieval pipeline with a weighted keyword scorer for a small, well-structured corpus — what was gained in simplicity and offline-friendliness, and what was traded away.",
+      "speakers": [
+        { "name": "Helena Brandt", "title": "Research Engineer", "company": "Open Retrieval Lab" }
+      ],
+      "day": "dayOne",
+      "track": "engineering",
+      "startTime": "2026-11-10T13:00:00",
+      "durationMinutes": 45
+    },
+    {
+      "id": "talk-005",
+      "title": "Streaming Token Generation Without Jank",
+      "abstract": "Practical techniques for rendering token-by-token LLM output in a mobile UI at 60fps: batching deltas, avoiding rebuild storms, and keeping the model's isolate off the UI thread.",
+      "speakers": [
+        { "name": "Kenji Watanabe", "title": "Senior Software Engineer", "company": "Nimbus AI" }
+      ],
+      "day": "dayOne",
+      "track": "engineering",
+      "startTime": "2026-11-10T14:00:00",
+      "durationMinutes": 30
+    },
+    {
+      "id": "talk-006",
+      "title": "Designing Trust: UI Patterns for Grounded AI Answers",
+      "abstract": "Citation chips, honest 'I don't know' states, and confidence cues — how interface design choices shape whether users trust (and correctly calibrate trust in) an AI assistant's answers.",
+      "speakers": [
+        { "name": "Sofia Marchetti", "title": "Principal Product Designer", "company": "Studio Loop" }
+      ],
+      "day": "dayOne",
+      "track": "productAndDesign",
+      "startTime": "2026-11-10T09:00:00",
+      "durationMinutes": 45
+    },
+    {
+      "id": "talk-007",
+      "title": "From Chatbot to Conference Companion: A Product Retrospective",
+      "abstract": "The product decisions behind turning a generic chat assistant into a focused, single-purpose conference agenda companion — and why narrowing scope improved both usability and answer quality.",
+      "speakers": [
+        { "name": "Owen Bradley", "title": "Group Product Manager", "company": "Eventide" }
+      ],
+      "day": "dayOne",
+      "track": "productAndDesign",
+      "startTime": "2026-11-10T10:00:00",
+      "durationMinutes": 45
+    },
+    {
+      "id": "talk-008",
+      "title": "Offline-First Product Design in an Always-Online World",
+      "abstract": "Why building for spotty conference-venue wifi forces better product decisions everywhere: caching strategies, honest loading states, and designing for degraded connectivity as the default, not the edge case.",
+      "speakers": [
+        { "name": "Ines Costa", "title": "Senior Product Designer", "company": "Eventide" }
+      ],
+      "day": "dayOne",
+      "track": "productAndDesign",
+      "startTime": "2026-11-10T11:00:00",
+      "durationMinutes": 30
+    },
+    {
+      "id": "talk-009",
+      "title": "Privacy by Architecture: What On-Device AI Means for Users",
+      "abstract": "A plain-language walkthrough of what actually stays on the device when an app runs an LLM locally, and how to communicate that honestly to users without overclaiming or underselling the privacy benefit.",
+      "speakers": [
+        { "name": "Grace Ohanian", "title": "Head of Trust & Safety", "company": "Nimbus AI" }
+      ],
+      "day": "dayOne",
+      "track": "productAndDesign",
+      "startTime": "2026-11-10T13:00:00",
+      "durationMinutes": 45
+    },
+    {
+      "id": "talk-010",
+      "title": "Measuring What Matters: Evaluating a RAG Assistant Without a Cloud API",
+      "abstract": "How to build an evaluation harness for a fully offline RAG assistant when you can't just call out to a bigger model as a judge — synthetic fixtures, human review loops, and regression suites that run in CI.",
+      "speakers": [
+        { "name": "Tomás Rivera", "title": "Data Product Lead", "company": "Open Retrieval Lab" }
+      ],
+      "day": "dayOne",
+      "track": "productAndDesign",
+      "startTime": "2026-11-10T14:00:00",
+      "durationMinutes": 30
+    },
+    {
+      "id": "talk-011",
+      "title": "Riverpod at Scale: Composition Roots and Testable Boundaries",
+      "abstract": "Patterns for structuring a Flutter app's repository/provider layer so every feature is testable with fakes and no screen ever imports a plugin package directly — drawn from real production codebases.",
+      "speakers": [
+        { "name": "Priya Natarajan", "title": "Staff Mobile Engineer", "company": "Acme Corp" }
+      ],
+      "day": "dayTwo",
+      "track": "engineering",
+      "startTime": "2026-11-11T09:00:00",
+      "durationMinutes": 45
+    },
+    {
+      "id": "talk-012",
+      "title": "Hive vs. sqflite vs. Isar: Picking Local Persistence in 2026",
+      "abstract": "A decision framework for local storage on Flutter: when a flat key-value store like Hive is enough, and when you actually need a relational or indexed engine — with real benchmark numbers.",
+      "speakers": [
+        { "name": "Marcus Webb", "title": "ML Systems Engineer", "company": "Litebeam" },
+        { "name": "Chidi Okoro", "title": "Backend Engineer", "company": "Litebeam" }
+      ],
+      "day": "dayTwo",
+      "track": "engineering",
+      "startTime": "2026-11-11T10:00:00",
+      "durationMinutes": 30
+    },
+    {
+      "id": "talk-013",
+      "title": "Download Once, Run Forever: Managing Large Model Assets on Mobile",
+      "abstract": "Streaming a 500MB+ model file to a phone without OOMing, validating it without a checksum server, and making a non-resumable download flow feel resilient instead of fragile.",
+      "speakers": [
+        { "name": "Kenji Watanabe", "title": "Senior Software Engineer", "company": "Nimbus AI" }
+      ],
+      "day": "dayTwo",
+      "track": "engineering",
+      "startTime": "2026-11-11T11:00:00",
+      "durationMinutes": 45
+    },
+    {
+      "id": "talk-014",
+      "title": "Testing the Untestable: Fakes at the Native Boundary",
+      "abstract": "How to keep a test suite fast and hermetic when the real implementation talks to a camera, a native ML interpreter, or a 500MB file on disk — the repository-fake pattern in depth, with war stories.",
+      "speakers": [
+        { "name": "Helena Brandt", "title": "Research Engineer", "company": "Open Retrieval Lab" }
+      ],
+      "day": "dayTwo",
+      "track": "engineering",
+      "startTime": "2026-11-11T13:00:00",
+      "durationMinutes": 30
+    },
+    {
+      "id": "talk-015",
+      "title": "Multi-Turn Conversation State on a 4K-Token Budget",
+      "abstract": "Strategies for keeping a chat coherent across turns when the model's context window is small: what to keep, what to summarize, and what to let go.",
+      "speakers": [
+        { "name": "Diego Fuentes", "title": "Mobile Engineer", "company": "Acme Corp" }
+      ],
+      "day": "dayTwo",
+      "track": "engineering",
+      "startTime": "2026-11-11T14:00:00",
+      "durationMinutes": 45
+    },
+    {
+      "id": "talk-016",
+      "title": "The Economics of Local Inference: Total Cost of Ownership",
+      "abstract": "A cost model comparing cloud LLM API spend against the one-time engineering cost of shipping on-device inference, including battery, storage, and support-burden considerations product teams often miss.",
+      "speakers": [
+        { "name": "Owen Bradley", "title": "Group Product Manager", "company": "Eventide" },
+        { "name": "Grace Ohanian", "title": "Head of Trust & Safety", "company": "Nimbus AI" }
+      ],
+      "day": "dayTwo",
+      "track": "productAndDesign",
+      "startTime": "2026-11-11T09:00:00",
+      "durationMinutes": 45
+    },
+    {
+      "id": "talk-017",
+      "title": "Writing for a Model That Might Say 'I Don't Know'",
+      "abstract": "Content and conversation design for assistants grounded in a fixed knowledge base: phrasing that sets correct expectations, and why an honest refusal is a feature, not a failure.",
+      "speakers": [
+        { "name": "Sofia Marchetti", "title": "Principal Product Designer", "company": "Studio Loop" }
+      ],
+      "day": "dayTwo",
+      "track": "productAndDesign",
+      "startTime": "2026-11-11T10:00:00",
+      "durationMinutes": 30
+    },
+    {
+      "id": "talk-018",
+      "title": "Accessibility for Streaming, Voice-Adjacent Interfaces",
+      "abstract": "Screen-reader and motor-accessibility considerations specific to token-by-token streaming text, live regions, and chat-style interfaces that update continuously rather than in discrete steps.",
+      "speakers": [
+        { "name": "Ines Costa", "title": "Senior Product Designer", "company": "Eventide" }
+      ],
+      "day": "dayTwo",
+      "track": "productAndDesign",
+      "startTime": "2026-11-11T11:00:00",
+      "durationMinutes": 30
+    },
+    {
+      "id": "talk-019",
+      "title": "From Idea to Offline Assistant in a Conference Weekend",
+      "abstract": "A live build retrospective: shipping a focused, single-purpose offline RAG assistant from a blank repository to a working app in under 72 hours, and what scope got deliberately cut along the way.",
+      "speakers": [
+        { "name": "Tomás Rivera", "title": "Data Product Lead", "company": "Open Retrieval Lab" },
+        { "name": "Chidi Okoro", "title": "Backend Engineer", "company": "Litebeam" }
+      ],
+      "day": "dayTwo",
+      "track": "productAndDesign",
+      "startTime": "2026-11-11T13:00:00",
+      "durationMinutes": 45
+    },
+    {
+      "id": "talk-020",
+      "title": "Closing Panel: What On-Device AI Still Can't Do (Yet)",
+      "abstract": "A frank panel discussion on the current limits of small, quantized, on-device models — reasoning depth, multilingual quality, and multimodal support — and what the next hardware generation might unlock.",
+      "speakers": [
+        { "name": "Ada Solano", "title": "Principal Engineer", "company": "Nimbus AI" },
+        { "name": "Helena Brandt", "title": "Research Engineer", "company": "Open Retrieval Lab" },
+        { "name": "Owen Bradley", "title": "Group Product Manager", "company": "Eventide" }
+      ],
+      "day": "dayTwo",
+      "track": "productAndDesign",
+      "startTime": "2026-11-11T14:00:00",
+      "durationMinutes": 45
+    }
+  ]
+}
