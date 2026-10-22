@@ -22,6 +22,10 @@ abstract class ModelDownloadRepository {
   /// (e.g. storage permission revoked).
   Future<ModelDownloadStatus> checkLocalStatus();
 
+  /// Returns `true` when the mobile device currently has an active Wi-Fi
+  /// connection suitable for downloading the ~529 MB model.
+  Future<bool> isWifiConnected();
+
   /// Streams the model to a `.part` file, then runs
   /// `ValidateDownloadedModelUseCase` and atomically renames it into place
   /// on success. Emits a [ModelDownloadStatus] per progress update
@@ -34,7 +38,7 @@ abstract class ModelDownloadRepository {
   /// Not resumable: any pre-existing `.part` file is deleted before a fresh
   /// download starts (see the ADR for why Range-header resume was
   /// rejected).
-  Stream<ModelDownloadStatus> download();
+  Stream<ModelDownloadStatus> download({String? authToken});
 }
 
 /// Thrown by [ModelDownloadRepository.checkLocalStatus] when the local

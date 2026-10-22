@@ -64,4 +64,19 @@ void main() {
     expect(find.byKey(const ValueKey('practiceError')), findsOneWidget);
     expect(find.textContaining('rps_model.tflite is missing.'), findsOneWidget);
   });
+
+  testWidgets('renders CameraViewfinder and switches camera on button tap', (
+    tester,
+  ) async {
+    final classifier = FakeClassifierRepository();
+    await _pumpPracticeScreen(tester, classifier);
+    classifier.emit(_result);
+    await tester.pump();
+
+    expect(find.byKey(const ValueKey('cameraViewfinder')), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('switchCameraButton')));
+    await tester.pump();
+
+    expect(classifier.switchCameraCallCount, 1);
+  });
 }

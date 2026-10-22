@@ -237,3 +237,44 @@ stub bodies, which clear up phase by phase as real logic replaces
 - `flutter analyze` reports zero errors against the full skeleton (only
   expected `unused_field`/`unused_import` warnings from stub bodies — see
   "Folder layout" above).
+
+---
+
+## On-Device Wi-Fi Detection & User Confirmation Gate Pass (2026-10-21)
+
+### Discovery & Architecture Triage
+
+| Criterion | Evaluation | Impact | `flutter-architect` Required? |
+| :--- | :--- | :--- | :--- |
+| **`>= 2` screens / widgets / notifiers modified** | Modifies `ModelSetupScreen`, `ModelDownloadViewModel`, `ModelDownloadRepository`, `ModelDownloadRepositoryImpl`, `ModelDownloadService`, `main.dart`, and introduces `NetworkConnectivityService` (`lib/data/services/network_connectivity_service.dart`). | Setup UI + domain/data model download pipeline | **YES (MANDATORY)** |
+| **State management / domain contracts changed** | Adds `Future<bool> isWifiConnected()` and optional `String? authToken` override to `ModelDownloadRepository` / `ModelDownloadViewModel`, and enforces Wi-Fi connectivity + explicit user confirmation dialog before downloading the ~529 MB `.litertlm` model on the mobile device. | Updates `ModelDownloadRepository` contract & ADR 0005 | **YES (MANDATORY)** |
+| **Navigation routes (`GoRouter`) changed** | Unchanged (2-tab `NavigationBar` in `app.dart`). | None | No |
+| **Platform channels / native permissions changed** | Adds `<uses-permission android:name="android.permission.INTERNET"/>` and `<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>` in `android/app/src/main/AndroidManifest.xml` and a lightweight `MethodChannel('com.jggomez.flutterai.event_llm_wiki/connectivity')` in `MainActivity.kt` querying `ConnectivityManager` (`NetworkCapabilities.TRANSPORT_WIFI`). | Native Android connectivity check + permissions | **YES (MANDATORY)** |
+
+### Requirements & Design Summary
+
+1. **Strictly On-Device Download (Never Downloaded on PC)**:
+   - The ~529 MB `Gemma3-1B-IT` `.litertlm` model is never downloaded on the host PC or bundled in the APK. It is downloaded exclusively on-demand on the mobile device into `getApplicationSupportDirectory()`.
+2. **Wi-Fi Connectivity Detection (`NetworkConnectivityService`)**:
+   - `NetworkConnectivityService` (`lib/data/services/network_connectivity_service.dart`) checks whether the mobile device has an active Wi-Fi transport via `MethodChannel('com.jggomez.flutterai.event_llm_wiki/connectivity')` (`isWifiConnected`), backed by Android's `ConnectivityManager` + `NetworkCapabilities.TRANSPORT_WIFI` in `MainActivity.kt`.
+   - `ModelDownloadRepositoryImpl.download()` verifies `await _networkConnectivityService.isWifiConnected()` before initiating the HTTP stream; if Wi-Fi is not active, it immediately emits `ModelDownloadStatus(phase: ModelDownloadPhase.failed, errorMessage: 'Wi-Fi connection required to download the ~529 MB model on this device. Please connect to Wi-Fi and try again.')`.
+3. **Explicit User Confirmation Dialog on `ModelSetupScreen`**:
+   - Tapping `Download model (~529 MB)` (or `Retry download`) first checks Wi-Fi status and opens a confirmation `AlertDialog` (`ValueKey('confirmModelDownloadDialog')`) showing:
+     - Model details (`Gemma 3 1B-IT · ~529 MB · On-device offline RAG`).
+     - Live Wi-Fi status indicator (blocking confirmation if Wi-Fi is disconnected).
+     - Optional `HuggingFace Token (HF_TOKEN)` input field (used when `--dart-define=HF_TOKEN=...` was not provided at build time, since `litert-community/Gemma3-1B-IT` is gated on HuggingFace).
+     - `Cancel` (`ValueKey('cancelDownloadDialogButton')`) and `Download on Wi-Fi` (`ValueKey('confirmDownloadDialogButton')`) actions.
+
+### Parallel Execution Tracks (Mode A — Disjoint File Partitioning)
+
+| Track | Subagent | Owned Files | Responsibilities |
+| :--- | :--- | :--- | :--- |
+| **Track 1 — Architecture & ADR 0005 Update** | `flutter-architect` | `doc/adr/0005-model-download-flow.md` | Record the Wi-Fi connectivity requirement (`NetworkConnectivityService`) and mandatory user confirmation gate in ADR 0005. |
+| **Track 2 — Full-Stack Implementation & TDD** | `flutter-implementer` | `android/app/src/main/AndroidManifest.xml`, `android/app/src/main/kotlin/**/MainActivity.kt`, `lib/data/services/network_connectivity_service.dart`, `lib/data/services/model_download_service.dart`, `lib/domain/repositories/model_download_repository.dart`, `lib/data/repositories/model_download_repository_impl.dart`, `lib/ui/features/setup/view_models/model_download_view_model.dart`, `lib/ui/features/setup/views/model_setup_screen.dart`, `lib/main.dart`, `test/**` | Implement `NetworkConnectivityService` + Android `ConnectivityManager` Wi-Fi check, `ModelDownloadRepository.isWifiConnected()`, optional runtime `authToken` pass-through, and the `ModelSetupScreen` Wi-Fi confirmation dialog with unit and widget tests. |
+
+### Verification Status (Completed 2026-10-21)
+- **Architecture ADR**: [`doc/adr/0005-model-download-flow.md`](doc/adr/0005-model-download-flow.md) (`ACCEPTED` with 2026-10-21 Wi-Fi & confirmation addendum).
+- **Static Analysis & Tests**: `flutter analyze` (`0 issues`), `flutter test` (`122/122 passing`).
+- **Review & Release Verdicts**: `flutter-reviewer` (`APPROVED`), `flutter-release-engineer` (`APPROVED`).
+
+

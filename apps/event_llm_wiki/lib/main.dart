@@ -13,6 +13,7 @@ import 'data/services/agenda_asset_service.dart';
 import 'data/services/app_storage_service.dart';
 import 'data/services/litert_lm_service.dart';
 import 'data/services/model_download_service.dart';
+import 'data/services/network_connectivity_service.dart';
 import 'ui/providers/repository_providers.dart';
 
 /// Download URL for `litert-community/Gemma3-1B-IT`'s `dynamic_int4`,
@@ -91,6 +92,7 @@ Future<void> main() async {
           ModelDownloadRepositoryImpl(
             modelDownloadService: ModelDownloadServiceImpl(),
             appStorageService: appStorageService,
+            networkConnectivityService: const NetworkConnectivityServiceImpl(),
             modelUrl: _modelDownloadUrl,
           ),
         ),

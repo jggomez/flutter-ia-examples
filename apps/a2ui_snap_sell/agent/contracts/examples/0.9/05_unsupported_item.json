@@ -1,0 +1,69 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "selling_unsupported",
+      "catalogId": "https://snap-sell.devhack.dev/a2ui/v0.9/snap_sell_catalog.json",
+      "sendDataModel": false
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "selling_unsupported",
+      "components": [
+        {
+          "id": "root",
+          "component": "Card",
+          "child": "unsupported-column"
+        },
+        {
+          "id": "unsupported-column",
+          "component": "Column",
+          "justify": "center",
+          "align": "center",
+          "children": [
+            "warning-icon",
+            "unsupported-title",
+            "unsupported-body",
+            "try-again-btn"
+          ]
+        },
+        {
+          "id": "warning-icon",
+          "component": "Icon",
+          "name": "warning"
+        },
+        {
+          "id": "unsupported-title",
+          "component": "Text",
+          "variant": "h3",
+          "text": "Category Not Supported Yet"
+        },
+        {
+          "id": "unsupported-body",
+          "component": "Text",
+          "variant": "body",
+          "text": "Snap & Sell v1 currently supports Cars, Motorcycles, and Smartphones. Please snap or choose a photo of one of those items to generate a listing."
+        },
+        {
+          "id": "try-again-label",
+          "component": "Text",
+          "text": "Try Another Photo"
+        },
+        {
+          "id": "try-again-btn",
+          "component": "Button",
+          "variant": "primary",
+          "child": "try-again-label",
+          "action": {
+            "event": {
+              "name": "start_new_listing",
+              "context": {}
+            }
+          }
+        }
+      ]
+    }
+  }
+]

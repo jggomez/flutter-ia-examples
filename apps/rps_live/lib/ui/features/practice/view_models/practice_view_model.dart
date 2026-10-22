@@ -61,6 +61,16 @@ class PracticeViewModel extends AsyncNotifier<ClassificationResult?> {
     );
     return firstResult.future;
   }
+
+  /// Toggles between front and rear cameras while keeping the practice stream
+  /// active.
+  Future<void> switchCamera() async {
+    try {
+      await ref.read(classifierRepositoryProvider).switchCamera();
+    } catch (error, stackTrace) {
+      state = AsyncError(error, stackTrace);
+    }
+  }
 }
 
 // `.autoDispose`: see the addendum to

@@ -47,16 +47,35 @@ class _StatusView extends ConsumerWidget {
         // meaningful here in the brief instant before that happens.
         return const SizedBox.shrink();
       case ModelDownloadPhase.notDownloaded:
-        return _DownloadCta(
-          label: 'Download model (~529 MB)',
-          onPressed: () =>
-              ref.read(modelDownloadViewModelProvider.notifier).startDownload(),
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.auto_awesome, size: 48),
+            const SizedBox(height: 12),
+            Text(
+              'On-Device Conference Assistant',
+              style: Theme.of(context).textTheme.titleLarge,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Gemma 3 1B-IT (~529 MB) is downloaded once directly onto your '
+              'mobile device over Wi-Fi for 100% offline agenda Q&A.',
+              style: Theme.of(context).textTheme.bodyMedium,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 20),
+            _DownloadCta(
+              label: 'Download model (~529 MB)',
+              onPressed: () => _confirmAndStartDownload(context, ref),
+            ),
+          ],
         );
       case ModelDownloadPhase.downloading:
         return Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('Downloading model…'),
+            const Text('Downloading model on Wi-Fi…'),
             const SizedBox(height: 16),
             LinearProgressIndicator(value: status.progress),
             const SizedBox(height: 8),
@@ -71,19 +90,129 @@ class _StatusView extends ConsumerWidget {
             const SizedBox(height: 16),
             _DownloadCta(
               label: 'Retry download',
-              onPressed: () => ref
-                  .read(modelDownloadViewModelProvider.notifier)
-                  .startDownload(),
+              onPressed: () => _confirmAndStartDownload(context, ref),
             ),
           ],
         );
     }
   }
 
+  Future<void> _confirmAndStartDownload(
+    BuildContext context,
+    WidgetRef ref,
+  ) async {
+    final notifier = ref.read(modelDownloadViewModelProvider.notifier);
+    final isWifi = await notifier.checkWifiConnected();
+    if (!context.mounted) return;
+
+    final confirmedToken = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) =>
+          _ConfirmModelDownloadDialog(isWifiConnected: isWifi),
+    );
+    if (confirmedToken == null || !context.mounted) return;
+
+    await notifier.startDownload(
+      authToken: confirmedToken.isEmpty ? null : confirmedToken,
+    );
+  }
+
   String _progressLabel(ModelDownloadStatus status) {
     final progress = status.progress;
     if (progress == null) return '${status.bytesDownloaded} bytes';
     return '${(progress * 100).toStringAsFixed(0)}%';
+  }
+}
+
+class _ConfirmModelDownloadDialog extends StatefulWidget {
+  const _ConfirmModelDownloadDialog({required this.isWifiConnected});
+
+  final bool isWifiConnected;
+
+  @override
+  State<_ConfirmModelDownloadDialog> createState() =>
+      _ConfirmModelDownloadDialogState();
+}
+
+class _ConfirmModelDownloadDialogState
+    extends State<_ConfirmModelDownloadDialog> {
+  final TextEditingController _tokenController = TextEditingController();
+
+  @override
+  void dispose() {
+    _tokenController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isWifi = widget.isWifiConnected;
+
+    return AlertDialog(
+      key: const ValueKey('confirmModelDownloadDialog'),
+      title: const Text('Download on-device AI model?'),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Gemma 3 1B-IT (~529 MB) will be downloaded directly onto this '
+              'device for offline conference Q&A.',
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Icon(
+                  isWifi ? Icons.wifi : Icons.wifi_off,
+                  color: isWifi ? colorScheme.primary : colorScheme.error,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    isWifi
+                        ? 'Wi-Fi connected — ready to download'
+                        : 'Wi-Fi not connected — please connect to Wi-Fi '
+                              'before downloading',
+                    style: TextStyle(
+                      color: isWifi ? colorScheme.primary : colorScheme.error,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              key: const ValueKey('hfTokenTextField'),
+              controller: _tokenController,
+              obscureText: true,
+              decoration: const InputDecoration(
+                labelText: 'HuggingFace Token (optional if set via build)',
+                hintText: 'hf_...',
+                border: OutlineInputBorder(),
+                isDense: true,
+              ),
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          key: const ValueKey('cancelDownloadDialogButton'),
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancel'),
+        ),
+        FilledButton(
+          key: const ValueKey('confirmDownloadDialogButton'),
+          onPressed: isWifi
+              ? () => Navigator.of(context).pop(_tokenController.text.trim())
+              : null,
+          child: const Text('Download on Wi-Fi'),
+        ),
+      ],
+    );
   }
 }
 

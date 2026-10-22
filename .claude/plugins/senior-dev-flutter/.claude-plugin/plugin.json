@@ -1,8 +1,3 @@
 {
-  "name": "senior-dev-flutter",
-  "version": "1.0.0",
-  "description": "Senior Flutter orchestrator, architecture decisions, profiling, and release engineering.",
-  "author": {
-    "name": "jggomez"
-  }
+  "name": "senior-dev-flutter"
 }

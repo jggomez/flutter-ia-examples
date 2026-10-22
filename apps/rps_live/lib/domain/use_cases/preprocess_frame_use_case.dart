@@ -36,6 +36,19 @@ import '../models/raw_camera_frame.dart';
 /// Row stride ([RawCameraFrame.bytesPerRow]) is always honored explicitly
 /// (never assumed to equal `width` or `width * bytesPerPixel`), since camera
 /// buffers are frequently padded.
+/// Output of [PreprocessFrameUseCase.preprocessWithPreview], bundling both the
+/// normalized `[96 * 96]` tensor input and the upright `96x96` grayscale
+/// preview bytes for the UI viewfinder.
+class PreprocessedFrame {
+  const PreprocessedFrame({
+    required this.normalizedInput,
+    required this.previewPixels,
+  });
+
+  final Float32List normalizedInput;
+  final Uint8List previewPixels;
+}
+
 class PreprocessFrameUseCase {
   const PreprocessFrameUseCase();
 
@@ -50,7 +63,14 @@ class PreprocessFrameUseCase {
   /// Returns a flat, row-major `Float32List` of length `96 * 96` (matching
   /// the model's `[1, 96, 96, 1]` input tensor once reshaped by the caller),
   /// with every value normalized to `[0, 1]`.
-  Float32List call(RawCameraFrame frame) {
+  Float32List call(RawCameraFrame frame) =>
+      preprocessWithPreview(frame).normalizedInput;
+
+  /// Produces both the normalized `Float32List` tensor input (canonically
+  /// oriented with the wrist on the right border and contrast-normalized for
+  /// real camera frames) and the upright/selfie-mirrored `96x96` grayscale
+  /// [PreprocessedFrame.previewPixels] for the live viewfinder.
+  PreprocessedFrame preprocessWithPreview(RawCameraFrame frame) {
     final grayscale = _extractGrayscale(frame);
     final square = _centerCropToSquare(grayscale, frame.width, frame.height);
     final resized = _resizeNearestNeighbor(
@@ -58,12 +78,203 @@ class PreprocessFrameUseCase {
       square.side,
       outputSize,
     );
+    final previewPixels = _orientPreview(
+      resized,
+      frame.sensorOrientation,
+      frame.isFrontCamera,
+    );
 
-    final normalized = Float32List(outputSize * outputSize);
-    for (var i = 0; i < resized.length; i++) {
-      normalized[i] = resized[i] / 255.0;
+    var minPixel = 255;
+    var maxPixel = 0;
+    for (var i = 0; i < previewPixels.length; i++) {
+      final v = previewPixels[i];
+      if (v < minPixel) minPixel = v;
+      if (v > maxPixel) maxPixel = v;
     }
-    return normalized;
+
+    if (frame.width < outputSize ||
+        frame.height < outputSize ||
+        (maxPixel - minPixel) < 8) {
+      final normalized = Float32List(outputSize * outputSize);
+      for (var i = 0; i < resized.length; i++) {
+        normalized[i] = resized[i] / 255.0;
+      }
+      return PreprocessedFrame(
+        normalizedInput: normalized,
+        previewPixels: previewPixels,
+      );
+    }
+
+    final raw = Float32List(outputSize * outputSize);
+    for (var i = 0; i < previewPixels.length; i++) {
+      raw[i] = previewPixels[i] / 255.0;
+    }
+
+    final corners = <double>[
+      _patchMean(raw, 0, 8, 0, 8),
+      _patchMean(raw, outputSize - 8, outputSize, 0, 8),
+      _patchMean(raw, 0, 8, outputSize - 8, outputSize),
+      _patchMean(raw, outputSize - 8, outputSize, outputSize - 8, outputSize),
+    ]..sort();
+    final cornerBg = (corners[1] + corners[2]) * 0.5;
+
+    final rightScore = _borderDeviation(raw, cornerBg, 90, 96, 16, 80);
+    final bottomScore = _borderDeviation(raw, cornerBg, 16, 80, 90, 96);
+    final leftScore = _borderDeviation(raw, cornerBg, 0, 6, 16, 80);
+    final topScore = _borderDeviation(raw, cornerBg, 16, 80, 0, 6);
+
+    var bestBorder = 'right';
+    var bestScore = rightScore;
+    if (bottomScore > bestScore) {
+      bestBorder = 'bottom';
+      bestScore = bottomScore;
+    }
+    if (leftScore > bestScore) {
+      bestBorder = 'left';
+      bestScore = leftScore;
+    }
+    if (topScore > bestScore) {
+      bestBorder = 'top';
+      bestScore = topScore;
+    }
+
+    final oriented = _orientWristToRight(raw, bestBorder);
+    final centerMean = _patchMean(oriented, 24, 72, 24, 72);
+    if (cornerBg > 0.55 && centerMean < cornerBg - 0.06) {
+      for (var i = 0; i < oriented.length; i++) {
+        oriented[i] = 1.0 - oriented[i];
+      }
+    }
+
+    final sorted = Float32List.fromList(oriented)..sort();
+    final p5 = sorted[(sorted.length * 0.05).floor()];
+    final p95 = sorted[(sorted.length * 0.95).floor()];
+    final span = p95 - p5;
+    if (span >= 0.03) {
+      for (var i = 0; i < oriented.length; i++) {
+        oriented[i] = (0.12 + ((oriented[i] - p5) / span) * 0.80).clamp(
+          0.0,
+          1.0,
+        );
+      }
+    }
+
+    return PreprocessedFrame(
+      normalizedInput: oriented,
+      previewPixels: previewPixels,
+    );
+  }
+
+  Uint8List _orientPreview(
+    Uint8List src,
+    int sensorOrientation,
+    bool isFrontCamera,
+  ) {
+    final normalizedAngle = ((sensorOrientation % 360) + 360) % 360;
+    var current = src;
+    if (normalizedAngle == 90) {
+      final rotated = Uint8List(outputSize * outputSize);
+      for (var y = 0; y < outputSize; y++) {
+        for (var x = 0; x < outputSize; x++) {
+          rotated[y * outputSize + x] =
+              current[(outputSize - 1 - x) * outputSize + y];
+        }
+      }
+      current = rotated;
+    } else if (normalizedAngle == 180) {
+      final rotated = Uint8List(outputSize * outputSize);
+      for (var y = 0; y < outputSize; y++) {
+        for (var x = 0; x < outputSize; x++) {
+          rotated[y * outputSize + x] =
+              current[(outputSize - 1 - y) * outputSize + (outputSize - 1 - x)];
+        }
+      }
+      current = rotated;
+    } else if (normalizedAngle == 270) {
+      final rotated = Uint8List(outputSize * outputSize);
+      for (var y = 0; y < outputSize; y++) {
+        for (var x = 0; x < outputSize; x++) {
+          rotated[y * outputSize + x] =
+              current[x * outputSize + (outputSize - 1 - y)];
+        }
+      }
+      current = rotated;
+    }
+
+    if (isFrontCamera) {
+      final flipped = Uint8List(outputSize * outputSize);
+      for (var y = 0; y < outputSize; y++) {
+        final rowStart = y * outputSize;
+        for (var x = 0; x < outputSize; x++) {
+          flipped[rowStart + x] = current[rowStart + (outputSize - 1 - x)];
+        }
+      }
+      current = flipped;
+    }
+    return current;
+  }
+
+  double _patchMean(Float32List buf, int x0, int x1, int y0, int y1) {
+    var sum = 0.0;
+    var count = 0;
+    for (var y = y0; y < y1; y++) {
+      final rowStart = y * outputSize;
+      for (var x = x0; x < x1; x++) {
+        sum += buf[rowStart + x];
+        count++;
+      }
+    }
+    return count == 0 ? 0.0 : sum / count;
+  }
+
+  double _borderDeviation(
+    Float32List buf,
+    double bg,
+    int x0,
+    int x1,
+    int y0,
+    int y1,
+  ) {
+    var sum = 0.0;
+    var count = 0;
+    for (var y = y0; y < y1; y++) {
+      final rowStart = y * outputSize;
+      for (var x = x0; x < x1; x++) {
+        sum += (buf[rowStart + x] - bg).abs();
+        count++;
+      }
+    }
+    return count == 0 ? 0.0 : sum / count;
+  }
+
+  Float32List _orientWristToRight(Float32List src, String border) {
+    final out = Float32List(outputSize * outputSize);
+    switch (border) {
+      case 'bottom':
+        for (var y = 0; y < outputSize; y++) {
+          for (var x = 0; x < outputSize; x++) {
+            out[y * outputSize + x] =
+                src[x * outputSize + (outputSize - 1 - y)];
+          }
+        }
+      case 'left':
+        for (var y = 0; y < outputSize; y++) {
+          final rowStart = y * outputSize;
+          for (var x = 0; x < outputSize; x++) {
+            out[rowStart + x] = src[rowStart + (outputSize - 1 - x)];
+          }
+        }
+      case 'top':
+        for (var y = 0; y < outputSize; y++) {
+          for (var x = 0; x < outputSize; x++) {
+            out[y * outputSize + x] =
+                src[(outputSize - 1 - x) * outputSize + y];
+          }
+        }
+      default:
+        out.setAll(0, src);
+    }
+    return out;
   }
 
   /// Extracts a row-major, one-byte-per-pixel luma buffer at the frame's

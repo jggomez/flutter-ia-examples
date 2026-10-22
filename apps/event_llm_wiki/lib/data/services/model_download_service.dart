@@ -27,7 +27,7 @@ abstract class ModelDownloadService {
   /// Throws (as a stream error) on a non-2xx response or a network failure
   /// — `ModelDownloadRepositoryImpl` is responsible for wrapping that into
   /// `ModelDownloadException`/a `ModelDownloadPhase.failed` status event.
-  Stream<ModelDownloadChunk> download(Uri modelUrl);
+  Stream<ModelDownloadChunk> download(Uri modelUrl, {String? authToken});
 }
 
 /// Real implementation backed by `package:http`'s streamed request API
@@ -49,14 +49,18 @@ class ModelDownloadServiceImpl implements ModelDownloadService {
   final String _authToken;
 
   @override
-  Stream<ModelDownloadChunk> download(Uri modelUrl) {
+  Stream<ModelDownloadChunk> download(Uri modelUrl, {String? authToken}) {
     final controller = StreamController<ModelDownloadChunk>();
 
     Future<void> run() async {
       try {
         final request = http.Request('GET', modelUrl);
-        if (_authToken.isNotEmpty) {
-          request.headers['Authorization'] = 'Bearer $_authToken';
+        final trimmedOverride = authToken?.trim() ?? '';
+        final effectiveToken = trimmedOverride.isNotEmpty
+            ? trimmedOverride
+            : _authToken;
+        if (effectiveToken.isNotEmpty) {
+          request.headers['Authorization'] = 'Bearer $effectiveToken';
         }
         final response = await _client.send(request);
         if (response.statusCode < 200 || response.statusCode >= 300) {

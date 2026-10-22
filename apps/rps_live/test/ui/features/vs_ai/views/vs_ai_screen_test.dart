@@ -90,4 +90,27 @@ void main() {
 
     expect(find.byKey(const ValueKey('vsAiErrorBanner')), findsOneWidget);
   });
+
+  testWidgets('displays CameraViewfinder with live gesture badge and '
+      'switches camera when switchCameraButton is tapped', (tester) async {
+    final classifier = FakeClassifierRepository();
+    await _pumpVsAiScreen(
+      tester,
+      classifier: classifier,
+      history: FakeHistoryRepository(),
+    );
+    await tester.pump();
+
+    classifier.emit(_rockResult);
+    await tester.pump();
+    await tester.pump();
+
+    expect(find.byKey(const ValueKey('cameraViewfinder')), findsOneWidget);
+    expect(find.textContaining('Piedra'), findsWidgets);
+
+    await tester.tap(find.byKey(const ValueKey('switchCameraButton')));
+    await tester.pump();
+
+    expect(classifier.switchCameraCallCount, 1);
+  });
 }

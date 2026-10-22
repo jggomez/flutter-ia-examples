@@ -1,0 +1,146 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "selling_step_3_preview",
+      "catalogId": "https://snap-sell.devhack.dev/a2ui/v0.9/snap_sell_catalog.json",
+      "sendDataModel": true
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "selling_step_3_preview",
+      "components": [
+        {
+          "id": "root",
+          "component": "Column",
+          "justify": "start",
+          "align": "stretch",
+          "children": [
+            "step-progress",
+            "price-range-card",
+            "listing-preview-card"
+          ]
+        },
+        {
+          "id": "step-progress",
+          "component": "StepProgress",
+          "currentStep": 3,
+          "totalSteps": 4,
+          "stepLabels": [
+            "Detected",
+            "Follow-up",
+            "Preview",
+            "Published"
+          ],
+          "subtitle": "Review your generated listing and adjust the asking price before publishing."
+        },
+        {
+          "id": "price-range-card",
+          "component": "PriceRange",
+          "minPrice": 21500,
+          "suggestedPrice": 23400,
+          "maxPrice": 24900,
+          "selectedPrice": {
+            "path": "/pricing/askingPrice"
+          },
+          "currency": "USD",
+          "rationale": {
+            "path": "/pricing/rationale"
+          }
+        },
+        {
+          "id": "listing-preview-card",
+          "component": "ListingPreview",
+          "title": {
+            "path": "/preview/title"
+          },
+          "description": {
+            "path": "/preview/description"
+          },
+          "category": "car",
+          "price": {
+            "path": "/pricing/askingPrice"
+          },
+          "currency": "USD",
+          "imageUrls": [
+            "http://10.0.2.2:8080/uploads/demo/car_front.jpg",
+            "http://10.0.2.2:8080/uploads/demo/odometer.jpg"
+          ],
+          "specs": [
+            {
+              "label": "Year",
+              "value": "2021"
+            },
+            {
+              "label": "Mileage",
+              "value": "34,200 km"
+            },
+            {
+              "label": "Engine",
+              "value": "2,000 cc"
+            },
+            {
+              "label": "Owners",
+              "value": "1st Owner"
+            },
+            {
+              "label": "Papers",
+              "value": "Up to date"
+            }
+          ],
+          "missingChecklist": [
+            {
+              "item": "Main exterior photo uploaded",
+              "completed": true
+            },
+            {
+              "item": "Odometer mileage verified",
+              "completed": true
+            },
+            {
+              "item": "Registration & inspection papers confirmed",
+              "completed": true
+            }
+          ],
+          "publishAction": {
+            "event": {
+              "name": "publish_listing",
+              "context": {
+                "title": {
+                  "path": "/preview/title"
+                },
+                "description": {
+                  "path": "/preview/description"
+                },
+                "askingPrice": {
+                  "path": "/pricing/askingPrice"
+                },
+                "currency": "USD",
+                "category": "car"
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateDataModel": {
+      "surfaceId": "selling_step_3_preview",
+      "path": "/",
+      "value": {
+        "pricing": {
+          "askingPrice": 23400,
+          "rationale": "Based on a 2021 Mazda CX-30 Grand Touring with 34,200 km, single owner, up-to-date papers, and no reported damage."
+        },
+        "preview": {
+          "title": "2021 Mazda CX-30 Grand Touring — 34,200 km, 1st Owner",
+          "description": "Well-maintained 2021 Mazda CX-30 Grand Touring in Soul Red Crystal with 2.0L engine (2,000 cc) and 34,200 km verified via odometer scan. Single owner, all registration and inspection papers up to date."
+        }
+      }
+    }
+  }
+]

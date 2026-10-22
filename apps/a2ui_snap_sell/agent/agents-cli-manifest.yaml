@@ -1,0 +1,21 @@
+name: "snap-sell-agent"
+acli_version: "1.11.0"
+agent_directory: "app"
+region: 'us-central1'
+base_template: "adk"
+generated_at: "2026-10-21T08:04:25.607744+00:00"
+language: "python"
+framework: "google-adk"
+create_params:
+  # The ADK name of the root agent, as rendered into the agent source. Rename
+  # the agent and you must change it in both places: telemetry reports this as
+  # gen_ai.agent.name, and it is what agents-cli reports for the project.
+  root_agent_name: "snap_sell_agent"
+  deployment_target: "cloud_run"
+  session_type: "in_memory"
+  cicd_runner: "skip"
+  is_a2a: true
+  agent_gateway: false
+  agent_guidance_filename: "GEMINI.md"
+  agent_runtime:
+    identity_default: "agent_identity"

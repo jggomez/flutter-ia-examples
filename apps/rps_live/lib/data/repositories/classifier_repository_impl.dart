@@ -198,13 +198,17 @@ class ClassifierRepositoryImpl implements ClassifierRepository {
   Future<void> _processFrame(RawCameraFrame frame) async {
     final outputController = _outputController;
     try {
-      final normalized = await compute(preprocessFrameUseCase.call, frame);
-      final raw = _classifierService.classify(normalized);
+      final preprocessed = await compute(
+        preprocessFrameUseCase.preprocessWithPreview,
+        frame,
+      );
+      final raw = _classifierService.classify(preprocessed.normalizedInput);
       outputController?.add(
         ClassificationResult(
           paperConfidence: raw[0],
           rockConfidence: raw[1],
           scissorsConfidence: raw[2],
+          previewPixels: preprocessed.previewPixels,
         ),
       );
     } catch (error, stackTrace) {
@@ -213,6 +217,9 @@ class ClassifierRepositoryImpl implements ClassifierRepository {
       _isProcessingFrame = false;
     }
   }
+
+  @override
+  Future<void> switchCamera() => _cameraFrameService.switchCamera();
 
   @override
   Future<void> dispose() async {

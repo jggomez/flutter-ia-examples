@@ -17,6 +17,8 @@ class RawCameraFrame {
     required this.height,
     required this.planeBytes,
     required this.bytesPerRow,
+    this.sensorOrientation = 0,
+    this.isFrontCamera = false,
   });
 
   final int width;
@@ -30,4 +32,10 @@ class RawCameraFrame {
 
   /// Row stride for each corresponding entry in [planeBytes].
   final List<int> bytesPerRow;
+
+  /// Clockwise sensor orientation in degrees (`0`, `90`, `180`, `270`).
+  final int sensorOrientation;
+
+  /// Whether this frame came from the front-facing (selfie) camera.
+  final bool isFrontCamera;
 }

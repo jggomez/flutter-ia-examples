@@ -8,6 +8,8 @@ import 'package:event_llm_wiki/domain/models/model_download_status.dart';
 import 'package:event_llm_wiki/domain/use_cases/validate_downloaded_model_use_case.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../support/fakes.dart';
+
 /// In-memory [AppStorageService] fake — a `Map<String, List<int>>` stands
 /// in for the filesystem, no real device storage involved.
 class _FakeAppStorageService implements AppStorageService {
@@ -65,10 +67,12 @@ class _FakeModelDownloadService implements ModelDownloadService {
   final List<ModelDownloadChunk> chunks;
   Object? error;
   Uri? lastRequestedUrl;
+  String? lastAuthToken;
 
   @override
-  Stream<ModelDownloadChunk> download(Uri modelUrl) {
+  Stream<ModelDownloadChunk> download(Uri modelUrl, {String? authToken}) {
     lastRequestedUrl = modelUrl;
+    lastAuthToken = authToken;
     final controller = StreamController<ModelDownloadChunk>();
     scheduleMicrotask(() async {
       for (final chunk in chunks) {
@@ -96,12 +100,14 @@ ModelDownloadChunk _bigChunk(int sizeBytes) =>
 void main() {
   late _FakeAppStorageService storage;
   late _FakeModelDownloadService downloadService;
+  late FakeNetworkConnectivityService connectivityService;
   final modelUrl = Uri.parse('https://example.com/model.litertlm');
 
   ModelDownloadRepositoryImpl makeRepository() {
     return ModelDownloadRepositoryImpl(
       modelDownloadService: downloadService,
       appStorageService: storage,
+      networkConnectivityService: connectivityService,
       modelUrl: modelUrl,
       validateDownloadedModelUseCase: const ValidateDownloadedModelUseCase(),
     );
@@ -109,6 +115,7 @@ void main() {
 
   setUp(() {
     storage = _FakeAppStorageService();
+    connectivityService = FakeNetworkConnectivityService();
     downloadService = _FakeModelDownloadService([
       ModelDownloadChunk(bytes: List.filled(60, 1), totalBytes: 120),
       ModelDownloadChunk(bytes: List.filled(60, 2), totalBytes: 120),
@@ -214,6 +221,7 @@ void main() {
       final repository = ModelDownloadRepositoryImpl(
         modelDownloadService: downloadService,
         appStorageService: storage,
+        networkConnectivityService: connectivityService,
         modelUrl: modelUrl,
       );
 
@@ -235,12 +243,26 @@ void main() {
       expect(events.last.errorMessage, contains('connection reset'));
     });
 
-    test('requests the configured modelUrl', () async {
+    test('requests the configured modelUrl and forwards authToken', () async {
       final repository = makeRepository();
 
-      await repository.download().toList();
+      await repository.download(authToken: 'hf_custom').toList();
 
       expect(downloadService.lastRequestedUrl, modelUrl);
+      expect(downloadService.lastAuthToken, 'hf_custom');
+    });
+
+    test('fails immediately without starting HTTP download when Wi-Fi is '
+        'not connected', () async {
+      connectivityService.wifiConnected = false;
+      final repository = makeRepository();
+
+      final events = await repository.download().toList();
+
+      expect(events, hasLength(1));
+      expect(events.single.phase, ModelDownloadPhase.failed);
+      expect(events.single.errorMessage, contains('Wi-Fi'));
+      expect(downloadService.lastRequestedUrl, isNull);
     });
   });
 }

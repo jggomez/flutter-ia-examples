@@ -21,6 +21,7 @@ class FakeClassifierRepository implements ClassifierRepository {
   Object? initializeError;
 
   int initializeCallCount = 0;
+  int switchCameraCallCount = 0;
   int disposeCallCount = 0;
   bool get isInitialized => initializeCallCount > 0 && initializeError == null;
 
@@ -40,6 +41,11 @@ class FakeClassifierRepository implements ClassifierRepository {
 
   void emitError(Object error, [StackTrace? stackTrace]) =>
       _controller.addError(error, stackTrace ?? StackTrace.current);
+
+  @override
+  Future<void> switchCamera() async {
+    switchCameraCallCount++;
+  }
 
   @override
   Future<void> dispose() async {
@@ -102,6 +108,7 @@ class FakeCameraFrameService implements CameraFrameService {
   final StreamController<RawCameraFrame> _controller;
 
   int startCallCount = 0;
+  int switchCameraCallCount = 0;
   int stopCallCount = 0;
   int listenerCount = 0;
 
@@ -121,6 +128,11 @@ class FakeCameraFrameService implements CameraFrameService {
   Stream<RawCameraFrame> get frames => _controller.stream;
 
   void emitFrame(RawCameraFrame frame) => _controller.add(frame);
+
+  @override
+  Future<void> switchCamera() async {
+    switchCameraCallCount++;
+  }
 
   @override
   Future<void> stop() async {

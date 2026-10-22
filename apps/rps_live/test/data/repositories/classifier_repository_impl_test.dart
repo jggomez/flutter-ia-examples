@@ -137,5 +137,22 @@ void main() {
       expect(camera.startCallCount, 1);
       expect(camera.listenerCount, 1);
     });
+
+    test(
+      'switchCamera() delegates to CameraFrameService.switchCamera()',
+      () async {
+        final camera = FakeCameraFrameService();
+        final classifierService = FakeTfliteClassifierService();
+        final repository = ClassifierRepositoryImpl(
+          cameraFrameService: camera,
+          classifierService: classifierService,
+        );
+
+        await repository.initialize();
+        await repository.switchCamera();
+
+        expect(camera.switchCameraCallCount, 1);
+      },
+    );
   });
 }

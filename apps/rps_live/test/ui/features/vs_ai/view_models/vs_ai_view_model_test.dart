@@ -285,5 +285,27 @@ void main() {
         expect(classifier.disposeCallCount, 1);
       },
     );
+
+    test('updates liveClassification whenever classificationStream emits and '
+        'switchCamera() delegates to repository', () async {
+      final classifier = FakeClassifierRepository();
+      final container = _makeContainer(
+        classifier: classifier,
+        history: FakeHistoryRepository(),
+      );
+      container.read(vsAiViewModelProvider);
+      await _flushMicrotasks();
+
+      classifier.emit(_scissorsResult);
+      await _flushMicrotasks();
+
+      expect(
+        container.read(vsAiViewModelProvider).liveClassification,
+        _scissorsResult,
+      );
+
+      await container.read(vsAiViewModelProvider.notifier).switchCamera();
+      expect(classifier.switchCameraCallCount, 1);
+    });
   });
 }

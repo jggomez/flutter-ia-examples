@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../domain/models/classification_result.dart';
 import '../../../../domain/models/move.dart';
+import '../../../core/widgets/camera_viewfinder.dart';
 import '../view_models/practice_view_model.dart';
 
 /// "Práctica libre" screen: live per-class confidence meters, no countdown.
@@ -12,13 +13,17 @@ class PracticeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(practiceViewModelProvider);
+    final notifier = ref.read(practiceViewModelProvider.notifier);
     return Scaffold(
       appBar: AppBar(title: const Text('Práctica libre')),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: state.when(
-            data: (result) => _ConfidenceMeters(result: result),
+            data: (result) => _ConfidenceMeters(
+              result: result,
+              onSwitchCamera: notifier.switchCamera,
+            ),
             loading: () => const Center(
               key: ValueKey('practiceLoading'),
               child: CircularProgressIndicator(),
@@ -51,9 +56,10 @@ class _PracticeError extends StatelessWidget {
 }
 
 class _ConfidenceMeters extends StatelessWidget {
-  const _ConfidenceMeters({required this.result});
+  const _ConfidenceMeters({required this.result, required this.onSwitchCamera});
 
   final ClassificationResult? result;
+  final VoidCallback onSwitchCamera;
 
   @override
   Widget build(BuildContext context) {
@@ -64,19 +70,27 @@ class _ConfidenceMeters extends StatelessWidget {
         child: Text('Esperando el primer cuadro de la cámara…'),
       );
     }
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        for (final move in Move.values)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: _ConfidenceMeter(
-              move: move,
-              confidence: currentResult.confidenceFor(move),
-              isTop: move == currentResult.topMove,
-            ),
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          CameraViewfinder(
+            liveResult: currentResult,
+            onSwitchCamera: onSwitchCamera,
+            showInstructions: false,
           ),
-      ],
+          const SizedBox(height: 16),
+          for (final move in Move.values)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: _ConfidenceMeter(
+                move: move,
+                confidence: currentResult.confidenceFor(move),
+                isTop: move == currentResult.topMove,
+              ),
+            ),
+        ],
+      ),
     );
   }
 }

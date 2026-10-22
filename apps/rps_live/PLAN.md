@@ -152,3 +152,41 @@ New tests: `test/data/repositories/classifier_repository_impl_test.dart`
 and `test/regression/classifier_lifecycle_regression_test.dart` (the
 cross-feature vs_ai/practice shared-repository regression that would have
 caught the original leak).
+
+---
+
+## On-Device UX, Live Camera Viewfinder & Wrist-Orientation Pass (2026-10-21)
+
+### Discovery & Architecture Triage
+
+| Criterion | Evaluation | Impact | `flutter-architect` Required? |
+| :--- | :--- | :--- | :--- |
+| **`>= 2` screens / widgets / notifiers modified** | Modifies `VsAiScreen`, `PracticeScreen`, `VsAiViewModel`, `PreprocessFrameUseCase`, `ClassifierRepositoryImpl`, and introduces shared `CameraViewfinder` widget (`lib/ui/core/widgets/camera_viewfinder.dart`). | Cross-feature UI + domain preprocessing pipeline | **YES (MANDATORY)** |
+| **State management / domain contracts changed** | Adds `liveClassification` (`ClassificationResult?`) to `VsAiState` and optional `previewPixels` (`Uint8List?`, `96x96` grayscale crop bytes) to `ClassificationResult` so the UI renders the exact square crop the AI evaluates without leaking `package:camera` into `domain/` or `ui/`. | Updates `ClassificationResult` and `VsAiState` contracts | **YES (MANDATORY)** |
+| **Navigation routes (`GoRouter`) changed** | Unchanged (bottom `NavigationBar` in `app.dart`). | None | No |
+| **Native plugins / `pubspec.yaml` changed** | Unchanged (`camera` + `flutter_litert` already wired). | None | No |
+
+### Problem Statement & Empirical Root Causes
+
+1. **Wrong Default Camera (`CameraLensDirection.back`) & No Live Camera Viewfinder ("no veo la cámara / mi mano, no entendí el juego, ¿no se puede con la cámara de adelante?")**:
+   - `CameraFrameServiceImpl` defaulted to `CameraLensDirection.back`, so while the player looked at the screen and held their hand in front of the phone, the rear camera pointed at the desk/wall (which `rps_model.tflite` always classifies as `Move.rock`).
+   - Switching the default to **`CameraLensDirection.front` (selfie camera)** plus adding a **Front/Back camera toggle (`switchCamera()`)** lets the player look at the screen while showing their hand to the front camera.
+   - `VsAiScreen` and `PracticeScreen` also lacked a live viewfinder, and `VsAiViewModel` kept `_latestClassification` private instead of exposing `liveClassification` on `VsAiState`.
+2. **Always Classifying `rock` ("siempre me sale piedra")**:
+   - `assets/models/rps_model.tflite` was trained on `drgfreeman/rockpaperscissors` (`96x96x1` grayscale), where **every training image has the wrist entering from the right border (`x = 95`) and fingers pointing left (`x = 0`)** on a uniform brighter background (`bg ≈ 0.42–0.85`).
+   - On Android (`sensorOrientation = 270°` front / `90°` back), raw `CameraImage` YUV420 buffers are rotated relative to portrait, and users naturally hold their hand vertically. In non-canonical orientations or uniform/off-target frames, the CNN defaults to `Move.rock` (`0.80–1.00` confidence).
+   - **Auto-Orientation & Contrast Normalization**: For real camera frames (`width >= 96 && height >= 96` with non-zero foreground variance against the four `8x8` corners), `PreprocessFrameUseCase` detects which border (`right`, `bottom`, `left`, `top`) the wrist crosses (highest mean `|pixel - cornerBg|` along the middle `[16..80]` segment), rotates/flips the `96x96` crop so the wrist is placed on the canonical `right` edge (`bottom` -> 90° CCW, `left` -> horizontal flip, `top` -> 90° CW), and normalizes contrast when the hand is darker than a bright background. Small synthetic test fixtures (`width < 96 || height < 96` or uniform frames) preserve exact raw pixel pass-through so all existing unit tests remain deterministic.
+
+### Parallel Execution Tracks (Mode A — Disjoint File Partitioning)
+
+| Track | Subagent | Owned Files (Strict Disjoint Scope) | Responsibilities |
+| :--- | :--- | :--- | :--- |
+| **Track 1 — Domain & Data Pipeline (Front Camera + Auto-Orientation + Preview)** | `flutter-implementer` | `lib/domain/models/raw_camera_frame.dart`, `lib/domain/models/classification_result.dart`, `lib/domain/repositories/classifier_repository.dart`, `lib/domain/use_cases/preprocess_frame_use_case.dart`, `lib/data/services/camera_frame_service.dart`, `lib/data/repositories/classifier_repository_impl.dart`, `test/domain/use_cases/preprocess_frame_use_case_test.dart`, `test/data/services/camera_frame_service_test.dart`, `test/data/repositories/classifier_repository_impl_test.dart`, `test/regression/classifier_lifecycle_regression_test.dart` | Default `CameraFrameServiceImpl` to `CameraLensDirection.front` and add `switchCamera()` to `CameraFrameService` & `ClassifierRepository`; add optional `sensorOrientation` / `isFrontCamera` to `RawCameraFrame`; add `previewPixels` (`96x96` upright grayscale preview) + wrist-border auto-orientation and contrast normalization in `PreprocessFrameUseCase`; wire `previewPixels` into `ClassificationResult`. |
+| **Track 2 — UI Viewfinder, Camera Switch & Game UX** | `flutter-implementer` | `lib/ui/core/widgets/camera_viewfinder.dart`, `lib/ui/features/vs_ai/view_models/vs_ai_view_model.dart`, `lib/ui/features/vs_ai/views/vs_ai_screen.dart`, `lib/ui/features/practice/view_models/practice_view_model.dart`, `lib/ui/features/practice/views/practice_screen.dart`, `test/ui/features/vs_ai/view_models/vs_ai_view_model_test.dart`, `test/ui/features/vs_ai/views/vs_ai_screen_test.dart`, `test/ui/features/practice/view_models/practice_view_model_test.dart`, `test/ui/features/practice/views/practice_screen_test.dart` | Expose `liveClassification` and `switchCamera()` on `VsAiViewModel` and `PracticeViewModel`; build shared `CameraViewfinder` widget (renders 96x96 grayscale BMP `Image.memory` with `gaplessPlayback: true`, front/back camera switch button, live detected move badge `✋ Papel / ✊ Piedra / ✌️ Tijera`, and clear 3-step game instructions); integrate into `VsAiScreen` and `PracticeScreen`. |
+
+### Verification Status (Completed 2026-10-21)
+- **Architecture ADR**: [`doc/adr/0003-live-viewfinder-and-orientation-normalization.md`](doc/adr/0003-live-viewfinder-and-orientation-normalization.md) (`ACCEPTED`).
+- **Static Analysis & Tests**: `flutter analyze` (`0 issues`), `flutter test` (`77/77 passing`).
+- **Review & Release Verdicts**: `flutter-reviewer` (`APPROVED`), `flutter-release-engineer` (`APPROVED`).
+
+

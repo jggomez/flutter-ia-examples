@@ -1,0 +1,26 @@
+{
+  "eval_cases": [
+    {
+      "eval_case_id": "detect_mazda_cx30",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "I uploaded a photo of a 2021 Mazda CX-30 in Soul Red at image_url http://localhost:8000/uploads/mazda_cx30.jpg. Please record the detected item and render the initial selling form."
+          }
+        ]
+      }
+    },
+    {
+      "eval_case_id": "unsupported_item_toaster",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "I uploaded a photo of a silver kitchen toaster at image_url http://localhost:8000/uploads/toaster.jpg. Identify it and render the appropriate A2UI surface."
+          }
+        ]
+      }
+    }
+  ]
+}

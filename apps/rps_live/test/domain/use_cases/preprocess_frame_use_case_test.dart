@@ -192,4 +192,110 @@ void main() {
       expect(at(95, 95), closeTo(5 / 255, 1e-6));
     });
   });
+
+  group('preprocessWithPreview & previewPixels orientation', () {
+    test('rotates previewPixels by sensorOrientation and mirrors when '
+        'isFrontCamera is true', () {
+      // Create a 96x96 frame where only pixel (x=0, y=0) is 255 and the rest
+      // are 0.
+      // Rotating 90° CW moves (0, 0) -> (95, 0).
+      // Mirroring horizontally (isFrontCamera: true) moves (95, 0) -> (0, 0).
+      // Rotating 270° CW moves (0, 0) -> (0, 95), and mirroring moves
+      // (0, 95) -> (95, 95).
+      final yPlane = Uint8List(96 * 96);
+      yPlane[0] = 255;
+      final frame = RawCameraFrame(
+        width: 96,
+        height: 96,
+        planeBytes: [yPlane],
+        bytesPerRow: [96],
+        sensorOrientation: 270,
+        isFrontCamera: true,
+      );
+
+      final preprocessed = useCase.preprocessWithPreview(frame);
+
+      expect(preprocessed.previewPixels.length, outputLength);
+      expect(preprocessed.previewPixels[95 * 96 + 95], 255);
+      expect(preprocessed.previewPixels[0], 0);
+    });
+  });
+
+  group('canonical wrist-border auto-orientation & contrast normalization', () {
+    RawCameraFrame buildHandFrame({
+      required String wristBorder,
+      int bgValue = 40,
+      int handValue = 220,
+    }) {
+      final yPlane = Uint8List.fromList(List<int>.filled(96 * 96, bgValue));
+      // Fill center hand region (32..64, 32..64)
+      for (var y = 32; y < 64; y++) {
+        for (var x = 32; x < 64; x++) {
+          yPlane[y * 96 + x] = handValue;
+        }
+      }
+      // Fill wrist crossing the specified border along middle span [30..66)
+      for (var i = 30; i < 66; i++) {
+        for (var d = 0; d < 6; d++) {
+          switch (wristBorder) {
+            case 'right':
+              yPlane[i * 96 + (90 + d)] = handValue;
+            case 'bottom':
+              yPlane[(90 + d) * 96 + i] = handValue;
+            case 'left':
+              yPlane[i * 96 + d] = handValue;
+            case 'top':
+              yPlane[d * 96 + i] = handValue;
+          }
+        }
+      }
+      return RawCameraFrame(
+        width: 96,
+        height: 96,
+        planeBytes: [yPlane],
+        bytesPerRow: [96],
+      );
+    }
+
+    for (final border in ['right', 'bottom', 'left', 'top']) {
+      test('rotates/flips wrist on $border border to canonical right edge '
+          '(x = 95)', () {
+        final frame = buildHandFrame(wristBorder: border);
+
+        final normalized = useCase(frame);
+        double at(int x, int y) => normalized[y * 96 + x];
+
+        // After canonical orientation, the right border middle (x=95, y=48)
+        // must have the bright wrist (~0.92), whereas the other three borders'
+        // midpoints remain background (~0.12).
+        expect(
+          at(95, 48),
+          greaterThan(0.8),
+          reason: 'right border for $border',
+        );
+        expect(at(0, 48), lessThan(0.3), reason: 'left border for $border');
+        expect(at(48, 0), lessThan(0.3), reason: 'top border for $border');
+        expect(at(48, 95), lessThan(0.3), reason: 'bottom border for $border');
+      });
+    }
+
+    test('inverts contrast when hand in center is darker than a bright '
+        'background', () {
+      // Bright wall (bg=230) with dark hand/wrist (hand=40) entering from bottom
+      final frame = buildHandFrame(
+        wristBorder: 'bottom',
+        bgValue: 230,
+        handValue: 40,
+      );
+
+      final normalized = useCase(frame);
+      double at(int x, int y) => normalized[y * 96 + x];
+
+      // Center hand and canonical right wrist become bright (> 0.8), corners
+      // become dark (< 0.3).
+      expect(at(48, 48), greaterThan(0.8));
+      expect(at(95, 48), greaterThan(0.8));
+      expect(at(2, 2), lessThan(0.3));
+    });
+  });
 }

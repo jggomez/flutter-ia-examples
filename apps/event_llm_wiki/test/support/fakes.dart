@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:event_llm_wiki/data/services/network_connectivity_service.dart';
 import 'package:event_llm_wiki/domain/models/chat_message.dart';
 import 'package:event_llm_wiki/domain/models/model_download_status.dart';
 import 'package:event_llm_wiki/domain/models/talk.dart';
@@ -123,10 +124,14 @@ class FakeModelDownloadRepository implements ModelDownloadRepository {
   /// [localStatus].
   Object? checkLocalStatusError;
 
+  /// Canned Wi-Fi connectivity status returned by [isWifiConnected].
+  bool wifiConnected = true;
+
   /// Events [download] emits, in order, on each call.
   List<ModelDownloadStatus> downloadEvents = const [];
 
   int downloadCallCount = 0;
+  String? lastAuthToken;
 
   @override
   Future<ModelDownloadStatus> checkLocalStatus() async {
@@ -136,8 +141,27 @@ class FakeModelDownloadRepository implements ModelDownloadRepository {
   }
 
   @override
-  Stream<ModelDownloadStatus> download() {
+  Future<bool> isWifiConnected() async => wifiConnected;
+
+  @override
+  Stream<ModelDownloadStatus> download({String? authToken}) {
     downloadCallCount++;
+    lastAuthToken = authToken;
     return Stream.fromIterable(downloadEvents);
+  }
+}
+
+/// In-memory [NetworkConnectivityService] fake for testing
+/// `ModelDownloadRepositoryImpl` without a platform channel.
+class FakeNetworkConnectivityService implements NetworkConnectivityService {
+  FakeNetworkConnectivityService({this.wifiConnected = true});
+
+  bool wifiConnected;
+  int checkCallCount = 0;
+
+  @override
+  Future<bool> isWifiConnected() async {
+    checkCallCount++;
+    return wifiConnected;
   }
 }

@@ -25,6 +25,9 @@ abstract class CameraFrameService {
   /// the ~10-15 fps inference target.
   Stream<RawCameraFrame> get frames;
 
+  /// Toggles between front and rear cameras while keeping [frames] open.
+  Future<void> switchCamera();
+
   Future<void> stop();
 }
 
@@ -36,19 +39,20 @@ abstract class CameraFrameService {
 class CameraFrameServiceImpl implements CameraFrameService {
   CameraFrameServiceImpl({
     this.resolutionPreset = ResolutionPreset.low,
-    this.preferredLensDirection = CameraLensDirection.back,
-  });
+    this.preferredLensDirection = CameraLensDirection.front,
+  }) : _activeLensDirection = preferredLensDirection;
 
   /// `low` is enough resolution for a 96x96 grayscale classifier input and
   /// keeps per-frame preprocessing cost down, which matters for hitting the
   /// ~10-15 fps inference target on the UI-adjacent isolate.
   final ResolutionPreset resolutionPreset;
 
-  /// The rear camera is preferred so the player can point it at their own
-  /// hand; falls back to whichever camera is available if a device only
-  /// exposes a front-facing camera.
+  /// The front (selfie) camera is preferred by default so the player can look
+  /// at the screen while showing their hand; falls back to whichever camera is
+  /// available if a device only exposes a rear camera.
   final CameraLensDirection preferredLensDirection;
 
+  CameraLensDirection _activeLensDirection;
   CameraController? _controller;
   StreamController<RawCameraFrame>? _frameStreamController;
 
@@ -59,6 +63,48 @@ class CameraFrameServiceImpl implements CameraFrameService {
       // start/stop lifecycle convention used across this app's services.
     }
 
+    final streamController = StreamController<RawCameraFrame>.broadcast();
+    try {
+      await _openCameraForDirection(
+        _activeLensDirection,
+        streamController: streamController,
+      );
+    } catch (_) {
+      await streamController.close();
+      rethrow;
+    }
+    _frameStreamController = streamController;
+  }
+
+  @override
+  Future<void> switchCamera() async {
+    final targetDirection = _activeLensDirection == CameraLensDirection.front
+        ? CameraLensDirection.back
+        : CameraLensDirection.front;
+
+    final streamController = _frameStreamController;
+    final previousController = _controller;
+    if (previousController == null || streamController == null) {
+      _activeLensDirection = targetDirection;
+      return;
+    }
+
+    _controller = null;
+    if (previousController.value.isStreamingImages) {
+      await previousController.stopImageStream();
+    }
+    await previousController.dispose();
+
+    await _openCameraForDirection(
+      targetDirection,
+      streamController: streamController,
+    );
+  }
+
+  Future<void> _openCameraForDirection(
+    CameraLensDirection direction, {
+    required StreamController<RawCameraFrame> streamController,
+  }) async {
     List<CameraDescription> cameras;
     try {
       cameras = await availableCameras();
@@ -75,7 +121,7 @@ class CameraFrameServiceImpl implements CameraFrameService {
     }
 
     final description = cameras.firstWhere(
-      (camera) => camera.lensDirection == preferredLensDirection,
+      (camera) => camera.lensDirection == direction,
       orElse: () => cameras.first,
     );
 
@@ -98,16 +144,14 @@ class CameraFrameServiceImpl implements CameraFrameService {
       );
     }
 
-    final streamController = StreamController<RawCameraFrame>.broadcast();
     try {
       await controller.startImageStream((image) {
         if (!streamController.isClosed) {
-          streamController.add(_toRawCameraFrame(image));
+          streamController.add(_toRawCameraFrame(image, description));
         }
       });
     } on CameraException catch (error) {
       await controller.dispose();
-      await streamController.close();
       throw CameraUnavailableException(
         'Failed to start the camera image stream.',
         cause: error,
@@ -115,7 +159,7 @@ class CameraFrameServiceImpl implements CameraFrameService {
     }
 
     _controller = controller;
-    _frameStreamController = streamController;
+    _activeLensDirection = description.lensDirection;
   }
 
   @override
@@ -146,12 +190,17 @@ class CameraFrameServiceImpl implements CameraFrameService {
     await streamController?.close();
   }
 
-  RawCameraFrame _toRawCameraFrame(CameraImage image) {
+  RawCameraFrame _toRawCameraFrame(
+    CameraImage image,
+    CameraDescription description,
+  ) {
     return RawCameraFrame(
       width: image.width,
       height: image.height,
       planeBytes: [for (final plane in image.planes) plane.bytes],
       bytesPerRow: [for (final plane in image.planes) plane.bytesPerRow],
+      sensorOrientation: description.sensorOrientation,
+      isFrontCamera: description.lensDirection == CameraLensDirection.front,
     );
   }
 }

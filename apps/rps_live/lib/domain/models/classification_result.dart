@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'move.dart';
 
 /// A single classifier inference, decoded from the raw `[1, 3]` softmax
@@ -13,6 +15,7 @@ class ClassificationResult {
     required this.paperConfidence,
     required this.rockConfidence,
     required this.scissorsConfidence,
+    this.previewPixels,
   });
 
   /// Softmax confidence for [Move.paper], in `[0, 1]`.
@@ -23,6 +26,11 @@ class ClassificationResult {
 
   /// Softmax confidence for [Move.scissors], in `[0, 1]`.
   final double scissorsConfidence;
+
+  /// Optional `96 * 96` (`9216`-byte) upright 8-bit grayscale crop preview,
+  /// allowing the UI to render a live camera viewfinder without importing
+  /// `package:camera`.
+  final Uint8List? previewPixels;
 
   /// Confidence for a given [move], keyed the same way for all three moves
   /// so the live confidence meter can iterate `Move.values` generically.

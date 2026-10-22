@@ -153,5 +153,27 @@ void main() {
       // No crash/late-listener error emitting after dispose.
       classifier.emit(_result2);
     });
+
+    test(
+      'switchCamera() delegates to ClassifierRepository.switchCamera()',
+      () async {
+        final classifier = FakeClassifierRepository();
+        final container = ProviderContainer(
+          overrides: [
+            classifierRepositoryProvider.overrideWithValue(classifier),
+          ],
+        );
+        addTearDown(container.dispose);
+        container.listen(practiceViewModelProvider, (_, _) {});
+
+        final future = container.read(practiceViewModelProvider.future);
+        await _flushMicrotasks();
+        classifier.emit(_result1);
+        await future;
+
+        await container.read(practiceViewModelProvider.notifier).switchCamera();
+        expect(classifier.switchCameraCallCount, 1);
+      },
+    );
   });
 }

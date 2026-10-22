@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../domain/models/game_phase.dart';
 import '../../../../domain/models/move.dart';
 import '../../../../domain/models/round_outcome.dart';
+import '../../../core/widgets/camera_viewfinder.dart';
 import '../view_models/vs_ai_view_model.dart';
 
 /// "Tú vs. IA" screen: 3-2-1 countdown, simultaneous reveal, animated
@@ -29,13 +30,20 @@ class VsAiScreen extends ConsumerWidget {
           child: Column(
             children: [
               _Scoreboard(state: state),
-              const SizedBox(height: 12),
+              const SizedBox(height: 8),
               if (state.errorMessage case final message?) ...[
                 _ErrorBanner(message: message),
-                const SizedBox(height: 12),
+                const SizedBox(height: 8),
               ],
               Expanded(
-                child: Center(child: _PhaseContent(state: state)),
+                child: Center(
+                  child: SingleChildScrollView(
+                    child: _PhaseContent(
+                      state: state,
+                      onSwitchCamera: notifier.switchCamera,
+                    ),
+                  ),
+                ),
               ),
               SizedBox(
                 width: double.infinity,
@@ -116,27 +124,44 @@ class _ErrorBanner extends StatelessWidget {
 }
 
 class _PhaseContent extends StatelessWidget {
-  const _PhaseContent({required this.state});
+  const _PhaseContent({required this.state, required this.onSwitchCamera});
 
   final VsAiState state;
+  final VoidCallback onSwitchCamera;
 
   @override
   Widget build(BuildContext context) {
     switch (state.phase) {
       case GamePhase.idle:
-        return const Text(
-          'Apunta la cámara a tu mano y presiona "Empezar ronda".',
-          textAlign: TextAlign.center,
+        return CameraViewfinder(
+          liveResult: state.liveClassification,
+          onSwitchCamera: onSwitchCamera,
         );
       case GamePhase.countdown:
-        return Text(
-          '${state.countdownValue}',
-          key: const ValueKey('countdownValue'),
-          style: Theme.of(context).textTheme.displayLarge,
+        return CameraViewfinder(
+          liveResult: state.liveClassification,
+          onSwitchCamera: onSwitchCamera,
+          overlay: Text(
+            '${state.countdownValue}',
+            key: const ValueKey('countdownValue'),
+            style: Theme.of(context).textTheme.displayLarge
+                ?.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+          ),
         );
       case GamePhase.revealing:
       case GamePhase.result:
-        return _RevealAndResult(state: state);
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CameraViewfinder(
+              liveResult: state.liveClassification,
+              onSwitchCamera: onSwitchCamera,
+              showInstructions: false,
+            ),
+            const SizedBox(height: 12),
+            _RevealAndResult(state: state),
+          ],
+        );
     }
   }
 }

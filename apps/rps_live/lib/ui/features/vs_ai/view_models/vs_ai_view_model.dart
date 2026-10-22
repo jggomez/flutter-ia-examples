@@ -24,6 +24,7 @@ class VsAiState {
     this.aiMove,
     this.outcome,
     this.stats = const MatchStats.zero(),
+    this.liveClassification,
     this.errorMessage,
   });
 
@@ -48,6 +49,9 @@ class VsAiState {
   /// persisted directly — see `HistoryRepository` for cross-restart history.
   final MatchStats stats;
 
+  /// Latest real-time classification + preview frame from the camera stream.
+  final ClassificationResult? liveClassification;
+
   /// Set when the classifier/camera pipeline fails to initialize or errors
   /// mid-stream, or when a completed round fails to persist. Non-fatal: the
   /// state machine keeps working (e.g. a persistence failure still shows
@@ -61,6 +65,7 @@ class VsAiState {
     Move? aiMove,
     RoundOutcome? outcome,
     MatchStats? stats,
+    ClassificationResult? liveClassification,
     String? errorMessage,
     bool clearRoundResult = false,
     bool clearError = false,
@@ -72,6 +77,7 @@ class VsAiState {
       aiMove: clearRoundResult ? null : (aiMove ?? this.aiMove),
       outcome: clearRoundResult ? null : (outcome ?? this.outcome),
       stats: stats ?? this.stats,
+      liveClassification: liveClassification ?? this.liveClassification,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
     );
   }
@@ -153,13 +159,30 @@ class VsAiViewModel extends Notifier<VsAiState> {
       if (_disposed) return;
       _classificationSubscription = classifierRepository.classificationStream
           .listen(
-            (result) => _latestClassification = result,
+            (result) {
+              _latestClassification = result;
+              if (!_disposed && state.phase != GamePhase.countdown) {
+                state = state.copyWith(liveClassification: result);
+              }
+            },
             onError: (Object error, StackTrace stackTrace) {
               if (!_disposed) {
                 state = state.copyWith(errorMessage: _describe(error));
               }
             },
           );
+    } catch (error) {
+      if (!_disposed) {
+        state = state.copyWith(errorMessage: _describe(error));
+      }
+    }
+  }
+
+  /// Toggles between the front and rear cameras without interrupting the
+  /// active round or classifier stream.
+  Future<void> switchCamera() async {
+    try {
+      await ref.read(classifierRepositoryProvider).switchCamera();
     } catch (error) {
       if (!_disposed) {
         state = state.copyWith(errorMessage: _describe(error));
@@ -189,6 +212,7 @@ class VsAiViewModel extends Notifier<VsAiState> {
       state = state.copyWith(
         phase: GamePhase.countdown,
         countdownValue: tick,
+        liveClassification: _latestClassification,
         clearRoundResult: isFirstTick,
         clearError: isFirstTick,
       );
@@ -212,6 +236,7 @@ class VsAiViewModel extends Notifier<VsAiState> {
       phase: GamePhase.revealing,
       playerMove: playerMove,
       aiMove: aiMove,
+      liveClassification: _latestClassification,
     );
 
     final outcome = _determineRoundResultUseCase(

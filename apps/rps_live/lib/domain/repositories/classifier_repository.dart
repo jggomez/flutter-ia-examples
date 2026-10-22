@@ -35,6 +35,10 @@ abstract class ClassifierRepository {
   /// Must only be listened to after [initialize] completes successfully.
   Stream<ClassificationResult> get classificationStream;
 
+  /// Toggles between front and rear cameras without closing
+  /// [classificationStream].
+  Future<void> switchCamera();
+
   /// Releases the camera and interpreter. Safe to call multiple times.
   Future<void> dispose();
 }

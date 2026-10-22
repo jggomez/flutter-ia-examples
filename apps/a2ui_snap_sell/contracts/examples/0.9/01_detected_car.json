@@ -1,0 +1,266 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "selling_step_1_detected",
+      "catalogId": "https://snap-sell.devhack.dev/a2ui/v0.9/snap_sell_catalog.json",
+      "sendDataModel": true
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "selling_step_1_detected",
+      "components": [
+        {
+          "id": "root",
+          "component": "Column",
+          "justify": "start",
+          "align": "stretch",
+          "children": [
+            "step-progress",
+            "detected-card",
+            "questions-card",
+            "continue-btn"
+          ]
+        },
+        {
+          "id": "step-progress",
+          "component": "StepProgress",
+          "currentStep": 1,
+          "totalSteps": 4,
+          "stepLabels": [
+            "Detected",
+            "Follow-up",
+            "Preview",
+            "Published"
+          ],
+          "subtitle": "Review detected vehicle details and answer what the photo cannot show."
+        },
+        {
+          "id": "detected-card",
+          "component": "DetectedItemCard",
+          "category": "car",
+          "imageUrl": {
+            "path": "/detected/imageUrl"
+          },
+          "confidence": 0.94,
+          "summary": {
+            "path": "/detected/summary"
+          },
+          "isEv": false,
+          "fields": [
+            {
+              "key": "brand",
+              "label": "Brand",
+              "value": {
+                "path": "/detected/brand"
+              },
+              "editable": true
+            },
+            {
+              "key": "model",
+              "label": "Model",
+              "value": {
+                "path": "/detected/model"
+              },
+              "editable": true
+            },
+            {
+              "key": "year",
+              "label": "Year / Generation",
+              "value": {
+                "path": "/detected/year"
+              },
+              "editable": true
+            },
+            {
+              "key": "color",
+              "label": "Color",
+              "value": {
+                "path": "/detected/color"
+              },
+              "editable": true
+            }
+          ]
+        },
+        {
+          "id": "questions-card",
+          "component": "Card",
+          "child": "questions-column"
+        },
+        {
+          "id": "questions-column",
+          "component": "Column",
+          "justify": "start",
+          "align": "stretch",
+          "children": [
+            "questions-heading",
+            "mileage-field",
+            "scan-odometer-btn",
+            "engine-cc-field",
+            "owners-picker",
+            "papers-checkbox",
+            "damage-checkbox"
+          ]
+        },
+        {
+          "id": "questions-heading",
+          "component": "Text",
+          "variant": "h3",
+          "text": "Vehicle History & Specs"
+        },
+        {
+          "id": "mileage-field",
+          "component": "TextField",
+          "label": "Mileage (km)",
+          "variant": "number",
+          "value": {
+            "path": "/details/mileageKm"
+          }
+        },
+        {
+          "id": "scan-odometer-btn-label",
+          "component": "Text",
+          "text": "Or scan odometer photo"
+        },
+        {
+          "id": "scan-odometer-btn",
+          "component": "Button",
+          "variant": "borderless",
+          "child": "scan-odometer-btn-label",
+          "action": {
+            "event": {
+              "name": "request_odometer_scan",
+              "context": {
+                "category": "car"
+              }
+            }
+          }
+        },
+        {
+          "id": "engine-cc-field",
+          "component": "TextField",
+          "label": "Engine Displacement (cc)",
+          "variant": "number",
+          "value": {
+            "path": "/details/engineCc"
+          }
+        },
+        {
+          "id": "owners-picker",
+          "component": "ChoicePicker",
+          "label": "Number of Owners",
+          "variant": "mutuallyExclusive",
+          "displayStyle": "chips",
+          "options": [
+            {
+              "label": "1st Owner",
+              "value": "1"
+            },
+            {
+              "label": "2 Owners",
+              "value": "2"
+            },
+            {
+              "label": "3+ Owners",
+              "value": "3+"
+            }
+          ],
+          "value": {
+            "path": "/details/ownersCount"
+          }
+        },
+        {
+          "id": "papers-checkbox",
+          "component": "CheckBox",
+          "label": "Registration & inspection papers up to date",
+          "value": {
+            "path": "/details/papersUpToDate"
+          }
+        },
+        {
+          "id": "damage-checkbox",
+          "component": "CheckBox",
+          "label": "Vehicle has visible dents, scratches, or mechanical issues",
+          "value": {
+            "path": "/details/hasDamage"
+          }
+        },
+        {
+          "id": "continue-btn-label",
+          "component": "Text",
+          "text": "Continue"
+        },
+        {
+          "id": "continue-btn",
+          "component": "Button",
+          "variant": "primary",
+          "child": "continue-btn-label",
+          "action": {
+            "event": {
+              "name": "submit_detected_details",
+              "context": {
+                "category": "car",
+                "isEv": false,
+                "brand": {
+                  "path": "/detected/brand"
+                },
+                "model": {
+                  "path": "/detected/model"
+                },
+                "year": {
+                  "path": "/detected/year"
+                },
+                "color": {
+                  "path": "/detected/color"
+                },
+                "mileageKm": {
+                  "path": "/details/mileageKm"
+                },
+                "engineCc": {
+                  "path": "/details/engineCc"
+                },
+                "ownersCount": {
+                  "path": "/details/ownersCount"
+                },
+                "papersUpToDate": {
+                  "path": "/details/papersUpToDate"
+                },
+                "hasDamage": {
+                  "path": "/details/hasDamage"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateDataModel": {
+      "surfaceId": "selling_step_1_detected",
+      "path": "/",
+      "value": {
+        "detected": {
+          "imageUrl": "http://10.0.2.2:8080/uploads/demo/car_front.jpg",
+          "summary": "2021 Mazda CX-30 Grand Touring in Soul Red Crystal, clean exterior.",
+          "brand": "Mazda",
+          "model": "CX-30 Grand Touring",
+          "year": "2021",
+          "color": "Soul Red Crystal"
+        },
+        "details": {
+          "mileageKm": "",
+          "engineCc": "2000",
+          "ownersCount": [
+            "1"
+          ],
+          "papersUpToDate": true,
+          "hasDamage": false
+        }
+      }
+    }
+  }
+]

@@ -15,13 +15,19 @@ class ModelDownloadViewModel extends AsyncNotifier<ModelDownloadStatus> {
     return ref.watch(modelDownloadRepositoryProvider).checkLocalStatus();
   }
 
+  /// Checks whether the mobile device currently has an active Wi-Fi
+  /// connection before presenting the download confirmation dialog.
+  Future<bool> checkWifiConnected() {
+    return ref.read(modelDownloadRepositoryProvider).isWifiConnected();
+  }
+
   /// Starts (or restarts, if the previous attempt failed) the model
   /// download, pushing each `ModelDownloadRepository.download()` stream
   /// event into `state` as it arrives so `ModelSetupScreen` can render live
   /// progress.
-  Future<void> startDownload() async {
+  Future<void> startDownload({String? authToken}) async {
     final repository = ref.read(modelDownloadRepositoryProvider);
-    await for (final status in repository.download()) {
+    await for (final status in repository.download(authToken: authToken)) {
       state = AsyncData(status);
     }
   }

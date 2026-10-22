@@ -1,0 +1,235 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "selling_step_1_detected",
+      "catalogId": "https://snap-sell.devhack.dev/a2ui/v0.9/snap_sell_catalog.json",
+      "sendDataModel": true
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "selling_step_1_detected",
+      "components": [
+        {
+          "id": "root",
+          "component": "Column",
+          "justify": "start",
+          "align": "stretch",
+          "children": [
+            "step-progress",
+            "detected-phone-card",
+            "phone-questions-card",
+            "continue-phone-btn"
+          ]
+        },
+        {
+          "id": "step-progress",
+          "component": "StepProgress",
+          "currentStep": 1,
+          "totalSteps": 4,
+          "stepLabels": [
+            "Detected",
+            "Follow-up",
+            "Preview",
+            "Published"
+          ],
+          "subtitle": "Confirm smartphone details and answer internal specs."
+        },
+        {
+          "id": "detected-phone-card",
+          "component": "DetectedItemCard",
+          "category": "phone",
+          "imageUrl": {
+            "path": "/detected/imageUrl"
+          },
+          "confidence": 0.96,
+          "summary": {
+            "path": "/detected/summary"
+          },
+          "fields": [
+            {
+              "key": "brand",
+              "label": "Brand",
+              "value": {
+                "path": "/detected/brand"
+              },
+              "editable": true
+            },
+            {
+              "key": "model",
+              "label": "Model",
+              "value": {
+                "path": "/detected/model"
+              },
+              "editable": true
+            },
+            {
+              "key": "year",
+              "label": "Release Year",
+              "value": {
+                "path": "/detected/year"
+              },
+              "editable": true
+            },
+            {
+              "key": "color",
+              "label": "Finish / Color",
+              "value": {
+                "path": "/detected/color"
+              },
+              "editable": true
+            }
+          ]
+        },
+        {
+          "id": "phone-questions-card",
+          "component": "Card",
+          "child": "phone-questions-col"
+        },
+        {
+          "id": "phone-questions-col",
+          "component": "Column",
+          "justify": "start",
+          "align": "stretch",
+          "children": [
+            "phone-questions-title",
+            "storage-picker",
+            "battery-slider",
+            "unlocked-checkbox",
+            "phone-damage-checkbox"
+          ]
+        },
+        {
+          "id": "phone-questions-title",
+          "component": "Text",
+          "variant": "h3",
+          "text": "Storage, Battery & Carrier Status"
+        },
+        {
+          "id": "storage-picker",
+          "component": "ChoicePicker",
+          "label": "Internal Storage",
+          "variant": "mutuallyExclusive",
+          "displayStyle": "chips",
+          "options": [
+            {
+              "label": "128 GB",
+              "value": "128"
+            },
+            {
+              "label": "256 GB",
+              "value": "256"
+            },
+            {
+              "label": "512 GB",
+              "value": "512"
+            },
+            {
+              "label": "1 TB",
+              "value": "1024"
+            }
+          ],
+          "value": {
+            "path": "/details/storageGb"
+          }
+        },
+        {
+          "id": "battery-slider",
+          "component": "Slider",
+          "label": "Maximum Battery Capacity (%)",
+          "min": 50,
+          "max": 100,
+          "value": {
+            "path": "/details/batteryHealthPct"
+          }
+        },
+        {
+          "id": "unlocked-checkbox",
+          "component": "CheckBox",
+          "label": "Factory unlocked for all carriers",
+          "value": {
+            "path": "/details/unlocked"
+          }
+        },
+        {
+          "id": "phone-damage-checkbox",
+          "component": "CheckBox",
+          "label": "Screen cracks, deep scratches, or FaceID/camera issues",
+          "value": {
+            "path": "/details/hasDamage"
+          }
+        },
+        {
+          "id": "continue-phone-label",
+          "component": "Text",
+          "text": "Continue"
+        },
+        {
+          "id": "continue-phone-btn",
+          "component": "Button",
+          "variant": "primary",
+          "child": "continue-phone-label",
+          "action": {
+            "event": {
+              "name": "submit_detected_details",
+              "context": {
+                "category": "phone",
+                "brand": {
+                  "path": "/detected/brand"
+                },
+                "model": {
+                  "path": "/detected/model"
+                },
+                "year": {
+                  "path": "/detected/year"
+                },
+                "color": {
+                  "path": "/detected/color"
+                },
+                "storageGb": {
+                  "path": "/details/storageGb"
+                },
+                "batteryHealthPct": {
+                  "path": "/details/batteryHealthPct"
+                },
+                "unlocked": {
+                  "path": "/details/unlocked"
+                },
+                "hasDamage": {
+                  "path": "/details/hasDamage"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateDataModel": {
+      "surfaceId": "selling_step_1_detected",
+      "path": "/",
+      "value": {
+        "detected": {
+          "imageUrl": "http://10.0.2.2:8080/uploads/demo/iphone_15_pro.jpg",
+          "summary": "Apple iPhone 15 Pro in Natural Titanium, triple-camera housing intact.",
+          "brand": "Apple",
+          "model": "iPhone 15 Pro",
+          "year": "2023",
+          "color": "Natural Titanium"
+        },
+        "details": {
+          "storageGb": [
+            "256"
+          ],
+          "batteryHealthPct": 91,
+          "unlocked": true,
+          "hasDamage": false
+        }
+      }
+    }
+  }
+]

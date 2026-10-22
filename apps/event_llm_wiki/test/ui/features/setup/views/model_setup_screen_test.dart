@@ -31,9 +31,8 @@ void main() {
     expect(find.byKey(const ValueKey('startDownloadButton')), findsOneWidget);
   });
 
-  testWidgets('tapping the CTA starts the download and shows progress', (
-    tester,
-  ) async {
+  testWidgets('tapping the CTA opens the Wi-Fi confirmation dialog and '
+      'confirming starts the download and shows progress', (tester) async {
     final repository = FakeModelDownloadRepository()
       ..downloadEvents = const [
         ModelDownloadStatus(
@@ -45,9 +44,49 @@ void main() {
 
     await _pumpScreen(tester, repository: repository);
     await tester.tap(find.byKey(const ValueKey('startDownloadButton')));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byKey(const ValueKey('confirmModelDownloadDialog')),
+      findsOneWidget,
+    );
+
+    await tester.tap(find.byKey(const ValueKey('confirmDownloadDialogButton')));
+    await tester.pump();
     await tester.pump();
 
     expect(find.byType(LinearProgressIndicator), findsOneWidget);
+  });
+
+  testWidgets('cancelling the confirmation dialog does not start download', (
+    tester,
+  ) async {
+    final repository = FakeModelDownloadRepository();
+
+    await _pumpScreen(tester, repository: repository);
+    await tester.tap(find.byKey(const ValueKey('startDownloadButton')));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const ValueKey('cancelDownloadDialogButton')));
+    await tester.pumpAndSettle();
+
+    expect(repository.downloadCallCount, 0);
+  });
+
+  testWidgets('disables confirm button in dialog when Wi-Fi is not connected', (
+    tester,
+  ) async {
+    final repository = FakeModelDownloadRepository()..wifiConnected = false;
+
+    await _pumpScreen(tester, repository: repository);
+    await tester.tap(find.byKey(const ValueKey('startDownloadButton')));
+    await tester.pumpAndSettle();
+
+    final confirmButton = tester.widget<FilledButton>(
+      find.byKey(const ValueKey('confirmDownloadDialogButton')),
+    );
+    expect(confirmButton.onPressed, isNull);
+    expect(repository.downloadCallCount, 0);
   });
 
   testWidgets('shows an error and retry CTA when the download fails', (
@@ -63,6 +102,9 @@ void main() {
 
     await _pumpScreen(tester, repository: repository);
     await tester.tap(find.byKey(const ValueKey('startDownloadButton')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('confirmDownloadDialogButton')));
+    await tester.pump();
     await tester.pump();
 
     expect(find.textContaining('connection reset'), findsOneWidget);

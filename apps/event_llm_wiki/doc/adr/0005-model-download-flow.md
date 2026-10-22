@@ -115,6 +115,23 @@ atomic rename**, orchestrated by `ModelDownloadRepositoryImpl`
   constant `flutter-implementer` must set deliberately (see that class's
   doc comment) — not copy-pasted from an unrelated size assumption.
 
+## Addendum (2026-10-21): On-device Wi-Fi connectivity check & user confirmation gate
+
+To prevent accidental cellular data consumption on a ~529 MB transfer and ensure the model is downloaded strictly on the mobile device with explicit user consent:
+
+1. **Strictly On-Device Download**:
+   - The ~529 MB `Gemma3-1B-IT` `.litertlm` model is never downloaded on the host PC or bundled into the application binary. It is downloaded strictly on-demand onto the mobile device's `getApplicationSupportDirectory()` via `AppStorageService`.
+2. **Wi-Fi Connectivity Gate (`NetworkConnectivityService`)**:
+   - Introduce `NetworkConnectivityService` (`lib/data/services/network_connectivity_service.dart`) exposing `Future<bool> isWifiConnected()`, backed by a lightweight `MethodChannel('com.jggomez.flutterai.event_llm_wiki/connectivity')` that queries Android's `ConnectivityManager` (`NetworkCapabilities.TRANSPORT_WIFI`) in `MainActivity.kt` (paired with `android.permission.INTERNET` and `android.permission.ACCESS_NETWORK_STATE` in `android/app/src/main/AndroidManifest.xml`).
+   - `ModelDownloadRepository` exposes `Future<bool> isWifiConnected()` and `Stream<ModelDownloadStatus> download({String? authToken})`.
+   - `ModelDownloadRepositoryImpl.download({String? authToken})` verifies `await _networkConnectivityService.isWifiConnected()` before opening the HTTP stream; if Wi-Fi is not active, it immediately yields `ModelDownloadStatus(phase: ModelDownloadPhase.failed, errorMessage: ...)` without initiating any network transfer.
+3. **Explicit User Confirmation Dialog on `ModelSetupScreen`**:
+   - Before calling `ModelDownloadViewModel.startDownload({String? authToken})`, `ModelSetupScreen` queries `isWifiConnected()` and presents a confirmation `AlertDialog` (`ValueKey('confirmModelDownloadDialog')`) displaying:
+     - The model size (~529 MB) and on-device storage notice.
+     - Active Wi-Fi connectivity status (disabling confirmation when Wi-Fi is disconnected).
+     - An optional `HF_TOKEN` text field (used as `Bearer` token when `--dart-define=HF_TOKEN=...` is empty at build time, since `litert-community/Gemma3-1B-IT` is gated on HuggingFace).
+     - Explicit `Cancel` (`ValueKey('cancelDownloadDialogButton')`) and `Download on Wi-Fi` (`ValueKey('confirmDownloadDialogButton')`) actions.
+
 ## Compliance
 
 `flutter-reviewer` checks:
@@ -122,11 +139,16 @@ atomic rename**, orchestrated by `ModelDownloadRepositoryImpl`
   `shared_preferences`, or otherwise) — `checkLocalStatus()` must stay
   filesystem-derived (cross-checked with `doc/adr/0004-persistence-hive-chat-history.md`'s
   compliance rule).
-- `ModelDownloadRepositoryImpl.download()` always deletes any pre-existing
-  `.part` file before writing a new one (no silent resume).
+- `ModelDownloadRepositoryImpl.download()` always verifies
+  `NetworkConnectivityService.isWifiConnected()` before opening the HTTP
+  stream and deletes any pre-existing `.part` file before writing a new one
+  (no silent resume).
+- `ModelSetupScreen` always requires explicit user confirmation via the
+  confirmation dialog (`ValueKey('confirmModelDownloadDialog')`) before
+  invoking `startDownload()`.
 - `ModelDownloadRepositoryImpl.download()`'s returned `Stream` never lets
   an exception propagate uncaught to its subscriber — every failure path
-  ends in a `ModelDownloadPhase.failed` event.
+  (including missing Wi-Fi) ends in a `ModelDownloadPhase.failed` event.
 - No `package:flutter_downloader` (or equivalent background-download
   plugin) import anywhere under `lib/` without a new ADR superseding this
   one.

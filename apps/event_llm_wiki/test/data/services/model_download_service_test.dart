@@ -74,8 +74,7 @@ void main() {
       );
     });
 
-    test('sends a Bearer Authorization header when authToken is set',
-        () async {
+    test('sends a Bearer Authorization header when authToken is set', () async {
       String? capturedAuthHeader;
       final client = MockClient.streaming((request, bodyStream) async {
         capturedAuthHeader = request.headers['Authorization'];
@@ -102,6 +101,24 @@ void main() {
       await service.download(Uri.parse('https://example.com/model')).toList();
 
       expect(capturedAuthHeader, isNull);
+    });
+
+    test('per-call authToken overrides constructor authToken', () async {
+      String? capturedAuthHeader;
+      final client = MockClient.streaming((request, bodyStream) async {
+        capturedAuthHeader = request.headers['Authorization'];
+        return http.StreamedResponse(const Stream.empty(), 200);
+      });
+      final service = ModelDownloadServiceImpl(client: client, authToken: '');
+
+      await service
+          .download(
+            Uri.parse('https://example.com/model'),
+            authToken: 'hf_runtime_token',
+          )
+          .toList();
+
+      expect(capturedAuthHeader, 'Bearer hf_runtime_token');
     });
   });
 }

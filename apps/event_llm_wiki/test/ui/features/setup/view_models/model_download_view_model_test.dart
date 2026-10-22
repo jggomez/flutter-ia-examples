@@ -110,5 +110,23 @@ void main() {
       expect(status?.phase, ModelDownloadPhase.failed);
       expect(status?.errorMessage, 'network error');
     });
+
+    test('checkWifiConnected() queries repository and startDownload() '
+        'forwards authToken', () async {
+      final repository = FakeModelDownloadRepository()..wifiConnected = false;
+      final container = ProviderContainer(
+        overrides: [
+          modelDownloadRepositoryProvider.overrideWithValue(repository),
+        ],
+      );
+      addTearDown(container.dispose);
+      await container.read(modelDownloadViewModelProvider.future);
+
+      final notifier = container.read(modelDownloadViewModelProvider.notifier);
+      expect(await notifier.checkWifiConnected(), isFalse);
+
+      await notifier.startDownload(authToken: 'hf_abc');
+      expect(repository.lastAuthToken, 'hf_abc');
+    });
   });
 }

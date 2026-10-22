@@ -1,0 +1,120 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "selling_step_2_followup",
+      "catalogId": "https://snap-sell.devhack.dev/a2ui/v0.9/snap_sell_catalog.json",
+      "sendDataModel": true
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "selling_step_2_followup",
+      "components": [
+        {
+          "id": "root",
+          "component": "Column",
+          "justify": "start",
+          "align": "stretch",
+          "children": [
+            "step-progress",
+            "odometer-photo-request",
+            "damage-photo-request",
+            "damage-notes-field",
+            "continue-followup-btn"
+          ]
+        },
+        {
+          "id": "step-progress",
+          "component": "StepProgress",
+          "currentStep": 2,
+          "totalSteps": 4,
+          "stepLabels": [
+            "Detected",
+            "Follow-up",
+            "Preview",
+            "Published"
+          ],
+          "subtitle": "Add quick photos so we can read the odometer and document the reported damage."
+        },
+        {
+          "id": "odometer-photo-request",
+          "component": "PhotoRequest",
+          "requestType": "odometer",
+          "title": "Odometer Photo",
+          "instructions": "Snap a clear photo of the dashboard odometer. Gemini will read the mileage automatically.",
+          "actionName": "upload_followup_photo",
+          "targetPath": "/followup/odometerPhotoUrl",
+          "previewUrl": {
+            "path": "/followup/odometerPhotoUrl"
+          },
+          "required": true
+        },
+        {
+          "id": "damage-photo-request",
+          "component": "PhotoRequest",
+          "requestType": "damage",
+          "title": "Close-up of Reported Damage",
+          "instructions": "Take a well-lit close-up of the scratch or dent so buyers have full transparency.",
+          "actionName": "upload_followup_photo",
+          "targetPath": "/followup/damagePhotoUrl",
+          "previewUrl": {
+            "path": "/followup/damagePhotoUrl"
+          },
+          "required": true
+        },
+        {
+          "id": "damage-notes-field",
+          "component": "TextField",
+          "label": "Brief description of the damage",
+          "variant": "longText",
+          "value": {
+            "path": "/followup/damageNotes"
+          }
+        },
+        {
+          "id": "continue-followup-label",
+          "component": "Text",
+          "text": "Generate Listing Preview"
+        },
+        {
+          "id": "continue-followup-btn",
+          "component": "Button",
+          "variant": "primary",
+          "child": "continue-followup-label",
+          "action": {
+            "event": {
+              "name": "submit_followup",
+              "context": {
+                "odometerPhotoUrl": {
+                  "path": "/followup/odometerPhotoUrl"
+                },
+                "damagePhotoUrl": {
+                  "path": "/followup/damagePhotoUrl"
+                },
+                "damageNotes": {
+                  "path": "/followup/damageNotes"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateDataModel": {
+      "surfaceId": "selling_step_2_followup",
+      "path": "/",
+      "value": {
+        "followup": {
+          "odometerPhotoUrl": "",
+          "damagePhotoUrl": "",
+          "damageNotes": ""
+        }
+      }
+    }
+  }
+]
