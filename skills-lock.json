@@ -229,6 +229,12 @@
       "skillPath": "skills/guidelines-karpathy/SKILL.md",
       "computedHash": "4cb7fa14f4a41816d3e69a27c24a1ed048f1962620cdfdcd48dc0ce6c190f0f4"
     },
+    "karpathy-llm-wiki": {
+      "source": "astro-han/karpathy-llm-wiki",
+      "sourceType": "github",
+      "skillPath": "SKILL.md",
+      "computedHash": "e5160084a6095f7d9a276a462df9a5d2d2c1b9386388c0f087e8c23c968c9472"
+    },
     "senior-architect-engineering": {
       "source": "jggomez/expert-ai-developer-skills",
       "sourceType": "github",

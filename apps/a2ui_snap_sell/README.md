@@ -14,7 +14,7 @@ on a physical Android device.
 - **Python ADK Agent (`agent/`)**: 20/20 `pytest` unit & integration tests
   passing; `agents-cli lint` clean (0 issues). Deployed on Google Cloud Run
   (`us-central1`, `min-instances=0`, `512Mi` RAM, `1 vCPU` throttled).
-- **Flutter Mobile Client (`mobile/`)**: 41/41 `flutter test` unit, widget, and
+- **Flutter Mobile Client (`mobile/`)**: 43/43 `flutter test` unit, widget, and
   contract tests passing; `flutter analyze` clean (0 issues).
 
 ---
@@ -214,7 +214,7 @@ cd apps/a2ui_snap_sell/agent
 uv run pytest tests/unit tests/integration
 agents-cli lint
 
-# Flutter Mobile Client (41/41 unit, widget & contract tests + analyzer)
+# Flutter Mobile Client (43/43 unit, widget & contract tests + analyzer)
 cd apps/a2ui_snap_sell/mobile
 flutter analyze
 flutter test

@@ -133,7 +133,7 @@ flutter analyze
 flutter test
 ```
 
-The test suite (41 tests) covers:
+The test suite (43 tests) covers:
 - Contract validation against `../contracts/snap_sell_catalog.json` and the 5
   few-shot A2UI v0.9 JSON examples (`test/contract/`).
 - Widget tests for all 5 custom catalog items plus the `Button` loading-state

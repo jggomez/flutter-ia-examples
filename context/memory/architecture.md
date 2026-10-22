@@ -8,7 +8,7 @@ Full rationale lives in each app's `doc/adr/`; this page is the digest.
 flutter-ai/
 ├── notebooks/                 # RPS CNN training (Kaggle drgfreeman/rockpaperscissors)
 ├── apps/rps_live/             # App 1 — live-camera RPS classifier game (LiteRT)
-├── apps/event_llm_wiki/       # App 2 — offline conference wiki + on-device RAG chat (Gemma 3 1B)
+├── apps/event_gemma/          # App 2 — offline conference wiki + on-device Gemma 3 1B RAG chat
 ├── apps/a2ui_snap_sell/       # App 3 — "Snap & Sell" dynamic A2UI v0.9 + Flutter GenUI marketplace app (agent/ + mobile/ + contracts/)
 ├── docs/a2ui/                 # Reference docs for ADK A2UI & Flutter GenUI
 ├── .agents/                   # Antigravity: official flutter/dart + google-agents-cli + a2ui skills + senior-dev/senior-dev-flutter plugins
@@ -29,13 +29,15 @@ flutter-ai/
 - Features: `vs_ai` (game + scoreboard + `CameraViewfinder`), `practice` (live per-class confidence + `CameraViewfinder`), `history` (Hive match records + stats).
 - ADR 0001 Riverpod (+ addendum: reference-counted shared camera/interpreter lifecycle across vs_ai & practice); ADR 0002 Hive; ADR 0003 Live viewfinder (`ClassificationResult.previewPixels`) & wrist-border orientation normalization.
 
-## apps/event_llm_wiki
-- Runtime: `flutter_litert_lm ^0.3.0` running `litert-community/Gemma3-1B-IT` (`.litertlm`, dynamic_int4, ~529 MB, 4096 ctx), **downloaded at runtime on the mobile device**, gated → needs `HF_TOKEN` via `--dart-define` or the in-app confirmation dialog (ADR 0001).
-- RAG: no embeddings — plain-Dart weighted lexical scorer (title×3, speaker×2, track/day×1, abstract×1), top-3 talks from bundled `assets/agenda.json` (ADR 0002). Citations = retrieved talks computed *before* generation.
+## apps/event_gemma (formerly event_llm_wiki)
+- Runtime: `flutter_edge_ai ^2.5.1` + `flutter_edge_ai_litertlm ^1.17.0` (Dart FFI native assets runtime replacing deprecated `flutter_litert_lm`, ADR 0006) running `Gemma3-1B-IT` (`.litertlm`, dynamic_int4, ~529 MB, 4096 ctx), **downloaded at runtime on the mobile device**, gated with public ungated mirror fallback (`lotapa/gemma3-1b-it-int4.litertlm`).
+- RAG: bilingual lexical retrieval (`RetrieveRelevantTalksUseCase`) with diacritic stripping (`áàäâ`->`a`, `éèëê`->`e`, `íìïî`->`i`, `óòöô`->`o`, `úùüû`->`u`, `ñ`->`n`), Spanish/English stopwords, domain synonym expansion (`charla`->`talk`, `ponente`->`speaker`, `ia`->`ai/llm`), and general keynote fallback (`talk-001`, `006`, `011`, `016`). Citations = retrieved talks computed *before* generation (ADR 0002, ADR 0007).
+- Prompt Grounding: official persona "Event Gemma", dynamic language matching (detects user language, answers in Spanish/English), and prefilled `systemInstruction` in `LitertLmServiceImpl` (ADR 0007).
 - State: Riverpod; documented exception — chat view model is **not** `.autoDispose` (expensive engine reload, single consumer) (ADR 0003).
 - Persistence: Hive for chat history only (ADR 0004).
-- Download: one-shot, non-resumable, Wi-Fi-gated (`NetworkConnectivityService` + Android `ConnectivityManager` `TRANSPORT_WIFI`), user-confirmed (`confirmModelDownloadDialog`), stream to `.part`, min-size check, atomic rename (ADR 0005).
-- Features: `agenda` (list/detail), `setup` (Wi-Fi check + user confirmation + model download), `chat` (streaming, citation chips). Android-only target; iOS inference explicitly unverified.
+- Download: one-shot, non-resumable, Wi-Fi-gated (`NetworkConnectivityService` + Android `ConnectivityManager` `TRANSPORT_WIFI`), user-confirmed (`confirmModelDownloadDialog`), manual redirect resolution stripping `Authorization` on cross-host CDN hops (`us.aws.cdn.hf.co`) with automatic fallback to public ungated `lotapa/gemma3-1b-it-int4.litertlm` mirror on `401`/`403`, buffered `IOSink` stream to `.part`, min-size check, atomic rename (ADR 0005).
+- UI/UX Design System: Modern Material 3 tech aesthetic (`lib/ui/core/theme/`): Deep Indigo/Violet primary, luminous Cyan/Teal accents, high-contrast surface containers, Day filter chips (`Day 1` / `Day 2`) + rich talk cards with initials avatars in `agenda`, hero header + speaker profile + "Ask AI" CTA in `talk_detail`, asymmetric bubbles + prompt suggestion pills + pulsing 3-dot generation indicator in `chat`, and hero onboarding card + live Wi-Fi meter in `setup` (ADR 0006). Android-first target.
+
 
 ## apps/a2ui_snap_sell
 - **Concept ("Snap & Sell")**: User snaps/picks a photo of an item to sell (`car` ICE/EV, `motorcycle`, `phone`) on a single fixed entry screen (`EntryScreen`). All subsequent screens (`selling_step_1_detected`, `selling_step_2_followup`, `selling_step_3_preview`, `selling_step_4_published`, `selling_unsupported`) are dynamically generated as A2UI `v0.9` surfaces by a Python ADK agent.

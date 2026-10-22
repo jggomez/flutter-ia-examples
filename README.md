@@ -34,17 +34,22 @@ end-to-end on a physical Android device (`CPH2531`, Android 15).
 | :---: | :---: | :---: |
 | <img src="images/rsp_live/04-practice-scissors.jpeg" alt="Practice Mode detecting Scissors" width="240" /> | <img src="images/rsp_live/05-practice-paper.jpeg" alt="Practice Mode detecting Paper" width="240" /> | <img src="images/rsp_live/06-match-history.jpeg" alt="Persistent Match History" width="240" /> |
 
-### `apps/event_llm_wiki` — Event LLM-Wiki
+### `apps/event_gemma` — Event Gemma
 
-A conference-agenda wiki with an on-device chat assistant that answers
+A conference-agenda guide with an on-device chat assistant that answers
 questions about the agenda using retrieval-augmented generation, fully
-offline, citing the specific talks it used. Runs a small Gemma 3 model via
-`flutter_litert_lm`. See
-[`apps/event_llm_wiki/README.md`](apps/event_llm_wiki/README.md).
+offline, citing the specific talks it used. Runs an on-device Gemma 3 1B model via
+`flutter_edge_ai_litertlm`, powered by a high-precision bilingual (Spanish/English)
+lexical RAG engine and a modern Material 3 AI/tech design system. See
+[`apps/event_gemma/README.md`](apps/event_gemma/README.md).
 
-Status: architecture and implementation complete (117 tests, clean
-analyzer). On-device verification (model download, real inference, full UI
-flow on a physical device) is still pending.
+Status: architecture and implementation complete (147 tests passing, clean
+analyzer), bilingual Spanish/English RAG verified on physical Android hardware
+(`CPH2531`, Android 15 / API 35) with the Impeller Vulkan engine and dynamic 120Hz display refresh rate.
+
+| Agenda (Day Filters & Badges) | Session Details & Profile | Keynote Query Grounding | Topic Grounding & Citations |
+| :---: | :---: | :---: | :---: |
+| <img src="images/event_gemma/01-agenda-list.jpeg" alt="Event Gemma Agenda View" width="240" /> | <img src="images/event_gemma/02-session-details.jpeg" alt="Event Gemma Session Details" width="240" /> | <img src="images/event_gemma/06-chat-keynotes-citations-en.jpeg" alt="Gemma 3 On-Device Keynotes Response" width="240" /> | <img src="images/event_gemma/07-chat-topic-grounding-citations.jpeg" alt="Gemma 3 Grounded Topic Query" width="240" /> |
 
 ### `apps/a2ui_snap_sell` — Snap & Sell (A2UI v0.9 + Flutter GenUI)
 
@@ -57,7 +62,7 @@ Cloud Run) dynamically generates every subsequent screen as A2UI v0.9 surfaces
 [`apps/a2ui_snap_sell/README.md`](apps/a2ui_snap_sell/README.md).
 
 Status: built, tested (`agent/`: 20 pytest tests + `agents-cli lint` clean;
-`mobile/`: 41 Flutter tests + `flutter analyze` clean), deployed to Cloud Run
+`mobile/`: 43 Flutter tests + `flutter analyze` clean), deployed to Cloud Run
 (`min-instances=0`, `512Mi` RAM, `1 vCPU` throttled), and verified end-to-end
 on a physical Android device.
 
@@ -85,10 +90,11 @@ flutter-ai/
 ├── notebooks/               # model training notebooks
 ├── images/                  # architecture diagrams & on-device app screenshots
 │   ├── rsp_live/            # RPS Live on-device mobile screenshots
+│   ├── event_gemma/         # Event Gemma on-device mobile screenshots
 │   └── a2ui/                # Snap & Sell A2UI interaction diagram & mobile screenshots
 ├── apps/
 │   ├── rps_live/            # app 1: on-device LiteRT gesture classifier game
-│   ├── event_llm_wiki/      # app 2: on-device Gemma 3 RAG conference assistant
+│   ├── event_gemma/         # app 2: on-device Gemma 3 1B RAG conference assistant
 │   └── a2ui_snap_sell/      # app 3: A2UI v0.9 + Flutter GenUI + ADK marketplace assistant
 │       ├── agent/           # Python ADK agent (Gemini 3.8 Flash + a2ui-agent-sdk v0.9)
 │       ├── mobile/          # Flutter GenUI mobile client
@@ -107,8 +113,8 @@ Each app is run and tested independently from its own directory:
 # App 1: RPS Live
 cd apps/rps_live && flutter pub get && flutter test
 
-# App 2: Event LLM-Wiki
-cd apps/event_llm_wiki && flutter pub get && flutter test
+# App 2: Event Gemma
+cd apps/event_gemma && flutter pub get && flutter test
 
 # App 3: Snap & Sell (Python ADK Agent + Flutter Mobile Client)
 cd apps/a2ui_snap_sell/agent && uv run pytest tests/unit tests/integration && agents-cli lint
@@ -116,5 +122,5 @@ cd apps/a2ui_snap_sell/mobile && flutter pub get && flutter analyze && flutter t
 ```
 
 See each app's own README for how to run it (including, for
-`event_llm_wiki`, the HuggingFace token setup its gated model requires, and for
+`event_gemma`, the HuggingFace token setup its gated model requires, and for
 `a2ui_snap_sell`, the local ADK server or Cloud Run configuration).
