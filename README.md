@@ -76,6 +76,32 @@ on a physical Android device.
 | :---: | :---: | :---: |
 | <img src="images/a2ui/04-step3-price-range-preview.jpeg" alt="Step 3 Price Range Preview" width="240" /> | <img src="images/a2ui/05-step3-listing-preview-publish.jpeg" alt="Step 3 Listing Preview and Publish Spinner" width="240" /> | <img src="images/a2ui/06-step4-published.jpeg" alt="Step 4 Published Confirmation" width="240" /> |
 
+### `apps/rag_study_gemma` — StudyGemma (PDF Vector RAG + Embeddings 2.0 + SQLite `vec0` + Gemma 4 E2B IT)
+
+A 100% offline, on-device **PDF Vector RAG Study Companion** powered by
+**EmbeddingGemma 2 (Embeddings 2.0, 270M, 768-dim)**, **SQLite `sqlite-vec`
+(`vec0`)** native vector storage (`flutter_edge_ai_sqlite` +
+`flutter_edge_ai_rag`), and **Gemma 4 E2B IT (2.58 GB, Mixed 2/4/8-bit, CPU `mmap`)**
+via `flutter_edge_ai_litertlm`. Users import study PDFs (textbooks, lecture notes,
+research papers), watch the real-time 4-stage on-device RAG ingestion pipeline
+(PDF validation → background isolate page extraction → structure-aware sliding-window
+chunking → 768-dim vector indexing in `study_gemma_rag.sqlite`), and chat with StudyGemma
+with document-scoped filters and interactive `[Doc Title · p. N]` page citations. See
+[`apps/rag_study_gemma/README.md`](apps/rag_study_gemma/README.md).
+
+Status: architecture and full Clean Architecture implementation complete (**78/78
+unit, widget, and regression tests passing**; `flutter analyze` clean with 0 issues).
+Verified and benchmarked on physical Android hardware (`CPH2531`, Android 15 / API 35,
+Impeller Vulkan 120Hz) with ~9.6s–12.2s prefill and ~7.8–9.0 tokens/sec decode throughput.
+
+| Live Walkthrough Demo (Click for Video) | Dual-Model Setup | 4-Stage Indexing Progress |
+| :---: | :---: | :---: |
+| [![StudyGemma Live Demo](images/rag_study/00-study-gemma-demo.gif)](images/rag_study/study-gemma-demo.mp4) | <img src="images/rag_study/01-setup-dual-models.jpeg" alt="StudyGemma Setup" width="240" /> | <img src="images/rag_study/03-library-indexing-progress.jpeg" alt="4-Stage Indexing Progress" width="240" /> |
+
+| Indexed Document Catalog | Grounded Summary (English) | Cross-Lingual Q&A (Spanish) |
+| :---: | :---: | :---: |
+| <img src="images/rag_study/04-library-indexed-document.jpeg" alt="Indexed Document Catalog" width="240" /> | <img src="images/rag_study/05-chat-summary-en.jpeg" alt="Grounded Summary in English" width="240" /> | <img src="images/rag_study/06-chat-crosslingual-es-citations.jpeg" alt="Cross-Lingual Spanish Q&A" width="240" /> |
+
 ## Notebooks
 
 [`notebooks/`](notebooks/) contains the training notebook for the
@@ -91,15 +117,17 @@ flutter-ai/
 ├── images/                  # architecture diagrams & on-device app screenshots
 │   ├── rsp_live/            # RPS Live on-device mobile screenshots
 │   ├── event_gemma/         # Event Gemma on-device mobile screenshots
-│   └── a2ui/                # Snap & Sell A2UI interaction diagram & mobile screenshots
+│   ├── a2ui/                # Snap & Sell A2UI interaction diagram & mobile screenshots
+│   └── rag_study/           # StudyGemma on-device mobile screenshots & demo video
 ├── apps/
 │   ├── rps_live/            # app 1: on-device LiteRT gesture classifier game
 │   ├── event_gemma/         # app 2: on-device Gemma 3 1B RAG conference assistant
-│   └── a2ui_snap_sell/      # app 3: A2UI v0.9 + Flutter GenUI + ADK marketplace assistant
-│       ├── agent/           # Python ADK agent (Gemini 3.8 Flash + a2ui-agent-sdk v0.9)
-│       ├── mobile/          # Flutter GenUI mobile client
-│       ├── contracts/       # shared A2UI v0.9 JSON Schema catalog & few-shot examples
-│       └── doc/adr/         # Architecture Decision Records (0001..0006)
+│   ├── a2ui_snap_sell/      # app 3: A2UI v0.9 + Flutter GenUI + ADK marketplace assistant
+│   │   ├── agent/           # Python ADK agent (Gemini 3.8 Flash + a2ui-agent-sdk v0.9)
+│   │   ├── mobile/          # Flutter GenUI mobile client
+│   │   ├── contracts/       # shared A2UI v0.9 JSON Schema catalog & few-shot examples
+│   │   └── doc/adr/         # Architecture Decision Records (0001..0006)
+│   └── rag_study_gemma/     # app 4: on-device PDF Vector RAG study companion (EmbeddingGemma 2 + sqlite-vec + Gemma 4 E2B IT)
 ├── context/memory/          # LLM Wiki persistent project memory & session logs
 ├── .agents/skills/          # official Flutter/Dart & Google Cloud agent skills
 └── .claude/plugins/         # senior-dev & senior-dev-flutter orchestration plugins
@@ -119,8 +147,12 @@ cd apps/event_gemma && flutter pub get && flutter test
 # App 3: Snap & Sell (Python ADK Agent + Flutter Mobile Client)
 cd apps/a2ui_snap_sell/agent && uv run pytest tests/unit tests/integration && agents-cli lint
 cd apps/a2ui_snap_sell/mobile && flutter pub get && flutter analyze && flutter test
+
+# App 4: StudyGemma (On-Device PDF Vector RAG Study Companion)
+cd apps/rag_study_gemma && flutter pub get && flutter analyze && flutter test
 ```
 
 See each app's own README for how to run it (including, for
-`event_gemma`, the HuggingFace token setup its gated model requires, and for
-`a2ui_snap_sell`, the local ADK server or Cloud Run configuration).
+`event_gemma` and `rag_study_gemma`, the optional HuggingFace token setup and
+automatic public mirror fallback, and for `a2ui_snap_sell`, the local ADK server
+or Cloud Run configuration).

@@ -1,0 +1,34 @@
+name: rag_study_gemma
+description: "StudyGemma — 100% offline on-device PDF Vector RAG Study Companion powered by EmbeddingGemma 2, sqlite-vec, and Gemma 3 1B IT."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.13.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  flutter_edge_ai: ^2.5.1
+  flutter_edge_ai_litertlm: ^1.17.0
+  flutter_edge_ai_embeddings: ^2.3.2
+  flutter_edge_ai_rag: ^1.1.2
+  flutter_edge_ai_sqlite: ^2.1.1
+  file_picker: ^10.3.3
+  syncfusion_flutter_pdf: ^31.1.19
+  flutter_riverpod: ^3.4.3
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  path_provider: ^2.1.6
+  http: ^1.2.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  path_provider_platform_interface: ^2.1.2
+  plugin_platform_interface: ^2.1.8
+
+flutter:
+  uses-material-design: true

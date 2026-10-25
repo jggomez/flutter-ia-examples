@@ -10,6 +10,7 @@ flutter-ai/
 ├── apps/rps_live/             # App 1 — live-camera RPS classifier game (LiteRT)
 ├── apps/event_gemma/          # App 2 — offline conference wiki + on-device Gemma 3 1B RAG chat
 ├── apps/a2ui_snap_sell/       # App 3 — "Snap & Sell" dynamic A2UI v0.9 + Flutter GenUI marketplace app (agent/ + mobile/ + contracts/)
+├── apps/rag_study_gemma/      # App 4 — "StudyGemma" offline PDF Vector RAG study companion (EmbeddingGemma 2 + SQLite vec0 + Gemma 3 1B IT)
 ├── docs/a2ui/                 # Reference docs for ADK A2UI & Flutter GenUI
 ├── .agents/                   # Antigravity: official flutter/dart + google-agents-cli + a2ui skills + senior-dev/senior-dev-flutter plugins
 ├── .claude/                   # Claude Code: senior-dev-flutter plugin
@@ -20,8 +21,8 @@ flutter-ai/
 - Layers: `lib/domain/` (models, repo interfaces, use cases) → `lib/data/` (services, repo impls, DTOs, local) → `lib/ui/` (features/<f>/{views,view_models}, core/widgets).
 - DI: single composition root `lib/ui/providers/repository_providers.dart`; providers **throw until overridden** in `main.dart`.
 - State: `flutter_riverpod ^3.4.3`, manual (non-codegen) `Notifier`/`AsyncNotifier`, view models `.autoDispose` by default.
-- Persistence: Hive (`hive` + `hive_flutter`, `hive_generator`/`build_runner` for `*.g.dart` DTO adapters).
-- Native/plugin wrappers (camera, LiteRT engine) are thin, deliberately untested pass-through services; everything else is TDD with fakes (`test/support/fakes.dart`), plus `test/regression/` lifecycle tests.
+- Persistence: Hive (`hive` + `hive_flutter`, `hive_generator`/`build_runner` or manual `TypeAdapter`s for DTOs).
+- Native/plugin wrappers (camera, LiteRT engine, Edge AI RAG) are thin, deliberately untested pass-through services; everything else is TDD with fakes (`test/support/fakes.dart`), plus `test/regression/` lifecycle tests.
 
 ## apps/rps_live
 - Model: 29,235-param CNN, input 96x96 grayscale `[0,1]`, softmax order `paper, rock, scissors`. Asset `assets/models/rps_model.tflite` = **float32-I/O mobile export** (not the INT8 ESP32 build).
@@ -44,3 +45,9 @@ flutter-ai/
 - **Shared Contract (`contracts/`)**: `snap_sell_catalog.json` (`https://snap-sell.devhack.dev/a2ui/v0.9/snap_sell_catalog.json`: 12 `BasicCatalog` components + 5 custom components: `StepProgress`, `DetectedItemCard`, `PhotoRequest`, `PriceRange`, `ListingPreview`) and 5 schema-validated JSON examples (`contracts/examples/0.9/01..05`).
 - **Python Agent (`agent/`)**: Scaffolded via `agents-cli scaffold create snap-sell-agent --agent adk --deployment-target cloud_run --prototype` (`google-agents-cli ~= 1.11.0`, `google-adk >= 2.12.0`, `a2ui-agent-sdk == 0.9.0`). Preserves `MODEL = "gemini-3.8-flash"`, `root_agent`, `app = App(root_agent=root_agent, name="app")`, 4 deterministic ADK tools in `app/tools.py` (`record_detected_item`, `validate_listing_fields`, `extract_odometer_reading`, `estimate_price_and_build_preview`), and built-in `A2aAgentExecutor(force_new_version=False)` with custom A2A/A2UI part converters in `app/app_utils/a2a.py` (ADR 0001, ADR 0002, ADR 0005, ADR 0006).
 - **Flutter Mobile Client (`mobile/`)**: Uses `genui: ^0.10.4` + `genui_a2a: ^0.10.1` + `image_picker: ^1.2.4` behind `SellingAgentRepository` and `ImageCaptureRepository` (1280px/Q80 + 1.5MB cap). Implements the 5 custom catalog items with two-way `DataContext` binding (`DataContextBindingExt`) and `UserActionEvent` dispatch (ADR 0003, ADR 0004).
+
+## apps/rag_study_gemma ("StudyGemma")
+- **Concept**: 100% offline, on-device PDF Vector RAG Study Companion. Users import PDFs (`.pdf` only), run an on-device 4-stage RAG ingestion pipeline (`Validate PDF` → `Extract Pages` → `Sliding-Window Chunks` → `EmbeddingGemma 2 + SQLite vec0`), and chat with **StudyGemma** with per-PDF filter chips and clickable `[Doc Title · p. N]` page citations.
+- **Dual-Model Runtime & Vector Store (`EdgeAiRagServiceImpl`)**: `flutter_edge_ai ^2.5.1` + `flutter_edge_ai_litertlm ^1.17.0` + `flutter_edge_ai_embeddings ^2.3.2` + `flutter_edge_ai_rag ^1.1.2` + `flutter_edge_ai_sqlite ^2.1.1`. Runs **EmbeddingGemma 2** (`embeddinggemma-2-text-270m.litertlm`, 768-dim, 1024 ctx, embedded SentencePiece tokenizer, profile `'embeddinggemma2-litertlm-text-4410a540ce75-prefix-v1'`) and **Gemma 3 1B IT** (`Gemma3-1B-IT_multi-prefill-seq_q4_ekv4096.litertlm`, 4096 ctx) over a single live `RagIndex` (`study_gemma_rag.sqlite` `vec0` virtual table, `FilterSchema` on `doc_id`, `doc_title`, `page_number`, `chunk_index`) (ADR 0001, ADR 0002).
+- **PDF Ingestion & Chunking**: `file_picker` (`.pdf` only) + `%PDF-` magic header check + `syncfusion_flutter_pdf` page extraction inside `Isolate.run()` (`PdfExtractorServiceImpl`). `ChunkDocumentUseCase` performs deterministic sliding-window chunking (`targetWords: 220`, `overlapWords: 40`, `maxChars: 1400`) so chunks never exceed EmbeddingGemma 2's 1024-token limit (ADR 0002, ADR 0003).
+- **State, Persistence & Download**: Riverpod 3.x with non-`autoDispose` `studyChatViewModelProvider`; Hive manual adapters (`StudyDocumentDto` `typeId: 0` with `chunkIds`, `ChatMessageDto` `typeId: 1` with `CitationDto`); sequential two-stage Wi-Fi-gated download (`EmbeddingGemma 2` ~157 MB + `Gemma 3 1B IT` ~529 MB) with optional HF token, cross-host CDN redirect `Authorization` stripping, and ungated mirror fallback (ADR 0004, ADR 0005).
