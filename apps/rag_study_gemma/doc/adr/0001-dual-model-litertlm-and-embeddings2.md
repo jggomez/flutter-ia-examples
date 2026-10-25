@@ -35,7 +35,7 @@ Adopt the **`flutter_edge_ai` ecosystem** (`flutter_edge_ai: ^2.5.1`, `flutter_e
 - **Session Contract**: Per-turn fresh native conversation (`model.createChat(...)`) with explicit sampling (`temperature: 0.3`, `topK: 40`, `topP: 0.9`, `maxOutputTokens: 420`, `enableThinking: false`) and a real-time `hasRepetitionLoop` token stream guard.
 
 ### 3. Critical Mobile Memory Engineering on Mali GPUs: Why CPU `mmap` Beats OpenCL/GPU
-A pivotal finding from empirical hardware testing on the OnePlus Nord CE 3 Lite 5G (`CPH2531`, Android 15, Mali GPU):
+A pivotal finding from empirical hardware testing on the OPPO Reno10 5G (`CPH2531`, Android 15 / ColorOS 15, MediaTek Dimensity 7050, Arm Mali-G68 MC4 GPU):
 - `gemma-4-E2B-it.litertlm` employs Google's Gemma 4 mixed 2/4/8-bit CPU quantization scheme. Under CPU execution, the **1.12 GB embedding table is memory-mapped (`mmap`) directly from flash storage**, requiring only ~**0.8 GB of active physical RAM** for model execution.
 - When initialized with `PreferredBackend.gpu` on Mali GPUs (`PowerVR, Broadcom, Mali GPUs`), OpenCL disables on-GPU weight preparation and attempts to allocate **3.4 GB of un-pageable contiguous `mali_gralloc` buffers**, instantly triggering an Android low-memory killer (LMK) abort.
 - **Resolution**: Initialize the generative model with `PreferredBackend.cpu`:

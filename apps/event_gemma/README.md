@@ -9,8 +9,9 @@ A browsable conference-agenda guide with an on-device **Gemma 3 1B** chat assist
 - **Test Suite**: **147/147 tests passing** (100% pass rate across unit, widget, and regression suites).
 - **Static Analysis**: `flutter analyze` clean (`0` issues).
 - **On-Device Physical Hardware Verification**:
-  - **Device**: OnePlus Nord CE 3 Lite 5G (`CPH2531`).
-  - **OS**: Android 15 (API Level 35).
+  - **Device**: OPPO Reno10 5G (`CPH2531`).
+  - **OS**: Android 15 (API Level 35 / ColorOS 15).
+  - **SoC & Memory**: MediaTek Dimensity 7050 (`MT6877V/TTZA`), 8 GB physical RAM, Arm Mali-G68 MC4 GPU.
   - **Graphics Engine**: Impeller Vulkan backend.
   - **Display**: Smooth 120Hz dynamic display refresh rate.
   - **Inference Profile**: Fully offline on-device inference with dynamic INT4 quantization, zero cloud telemetry, and zero recurring API costs.
@@ -19,7 +20,7 @@ A browsable conference-agenda guide with an on-device **Gemma 3 1B** chat assist
 
 ## Screenshots & Feature Walkthrough (Physical Android Device)
 
-Captured on OnePlus Nord CE 3 Lite 5G (`CPH2531`, Android 15 / API 35) running the Impeller Vulkan engine at dynamic 120Hz:
+Captured on OPPO Reno10 5G (`CPH2531`, Android 15 / API 35) running the Impeller Vulkan engine at dynamic 120Hz:
 
 ### 1. Conference Agenda & Session Details
 

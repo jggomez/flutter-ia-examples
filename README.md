@@ -24,7 +24,7 @@ orientation & contrast normalization. See
 [`apps/rps_live/README.md`](apps/rps_live/README.md).
 
 Status: built, tested (77 tests, clean analyzer), reviewed, and verified
-end-to-end on a physical Android device (`CPH2531`, Android 15).
+end-to-end on a physical Android device: OPPO Reno10 5G (`CPH2531`, Android 15 / API 35).
 
 | You vs. AI — Paper (`100%`) | You vs. AI — Rock (`97%`) | You vs. AI — Scissors (`68%`) |
 | :---: | :---: | :---: |
@@ -44,8 +44,8 @@ lexical RAG engine and a modern Material 3 AI/tech design system. See
 [`apps/event_gemma/README.md`](apps/event_gemma/README.md).
 
 Status: architecture and implementation complete (147 tests passing, clean
-analyzer), bilingual Spanish/English RAG verified on physical Android hardware
-(`CPH2531`, Android 15 / API 35) with the Impeller Vulkan engine and dynamic 120Hz display refresh rate.
+analyzer), bilingual Spanish/English RAG verified on physical Android hardware:
+OPPO Reno10 5G (`CPH2531`, Android 15 / API 35) with the Impeller Vulkan engine and dynamic 120Hz display refresh rate.
 
 | Agenda (Day Filters & Badges) | Session Details & Profile | Keynote Query Grounding | Topic Grounding & Citations |
 | :---: | :---: | :---: | :---: |
@@ -91,8 +91,8 @@ with document-scoped filters and interactive `[Doc Title · p. N]` page citation
 
 Status: architecture and full Clean Architecture implementation complete (**78/78
 unit, widget, and regression tests passing**; `flutter analyze` clean with 0 issues).
-Verified and benchmarked on physical Android hardware (`CPH2531`, Android 15 / API 35,
-Impeller Vulkan 120Hz) with ~9.6s–12.2s prefill and ~7.8–9.0 tokens/sec decode throughput.
+Verified and benchmarked on physical Android hardware: **OPPO Reno10 5G (`CPH2531`, Android 15 / API 35,
+MediaTek Dimensity 7050, 8 GB RAM, Arm Mali-G68 MC4 GPU, Impeller Vulkan 120Hz)** with ~9.6s–12.2s prefill and ~7.8–9.0 tokens/sec decode throughput.
 
 | Live Walkthrough Demo (Click for Video) | Dual-Model Setup | 4-Stage Indexing Progress |
 | :---: | :---: | :---: |

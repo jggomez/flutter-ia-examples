@@ -11,9 +11,9 @@ Students and researchers import study PDFs (academic research papers, textbooks,
 - **Test Suite**: **78/78 tests passing** (`100%` pass rate across domain unit, data repository/service, UI widget, and lifecycle regression suites).
 - **Static Analysis**: `flutter analyze` clean (`0` issues).
 - **On-Device Physical Hardware Verification**:
-  - **Device**: OnePlus Nord CE 3 Lite 5G (`CPH2531`).
-  - **OS**: Android 15 (API Level 35).
-  - **SoC & Memory**: Qualcomm Snapdragon 695 5G, 8 GB physical RAM, Adreno / Mali GPU architecture.
+  - **Device**: OPPO Reno10 5G (`CPH2531`).
+  - **OS**: Android 15 (API Level 35 / ColorOS 15).
+  - **SoC & Memory**: MediaTek Dimensity 7050 (`MT6877V/TTZA`), 8 GB physical RAM, Arm Mali-G68 MC4 GPU.
   - **Graphics Engine**: Flutter Impeller Vulkan backend at dynamic 120Hz display refresh rate.
   - **On-Device Inference Profile**:
     - **Prefill Latency**: **~9.6s – 12.2s** for ~2.5 KB grounded multi-chunk prompts.
@@ -26,10 +26,10 @@ Students and researchers import study PDFs (academic research papers, textbooks,
 
 ### Complete End-to-End Walkthrough (PDF Indexing → Summary → Cross-Lingual Q&A)
 
-| Inline Video Preview (Animated GIF) | Native Video Stream (HTML5) |
-| :---: | :---: |
-| [![StudyGemma Live Demo — On-Device PDF Vector RAG](../../images/rag_study/00-study-gemma-demo.gif)](../../images/rag_study/study-gemma-demo.mp4) | <video src="../../images/rag_study/study-gemma-demo.mp4" controls width="260"></video> |
-| *Click GIF to watch full-resolution recording* | *Direct in-browser/IDE video player* |
+| Inline Video Preview (Animated GIF · Click to Open Full Video) |
+| :---: |
+| [![StudyGemma Live Demo — On-Device PDF Vector RAG](../../images/rag_study/00-study-gemma-demo.gif)](../../images/rag_study/study-gemma-demo.mp4) |
+| *Click the GIF above to stream/download the full-resolution recording (`16 MB`)* |
 
 > [!TIP]
 > **Full Resolution Video**: [▶ Watch Full Resolution Demo Video (MP4, 2m 31s, 16 MB)](../../images/rag_study/study-gemma-demo.mp4) recorded directly on `CPH2531` showing real-time 13-page academic PDF ingestion, SQLite `vec0` indexing, grounded English summary, and cross-lingual Spanish reasoning with citation navigation.
@@ -109,7 +109,7 @@ graph TD
   - `Gemma 4 E2B IT` delivers crisp, structured synthesis, follows strict negative constraints (no verbatim copying, no hallucination), and excels at cross-lingual reasoning (reading English academic excerpts and answering fluently in Spanish).
 
 ### 3. Critical Mobile Memory Engineering: Why CPU `mmap` Beats Mali GPU (`mali_gralloc`)
-A crucial architectural breakthrough emerged during physical testing on the OnePlus Nord CE 3 Lite 5G (`CPH2531`, Mali GPU):
+A crucial architectural breakthrough emerged during physical testing on the OPPO Reno10 5G (`CPH2531`, MediaTek Dimensity 7050, Arm Mali-G68 MC4 GPU):
 - `gemma-4-E2B-it.litertlm` uses Google's Gemma 4 mixed 2/4/8-bit CPU quantization scheme.
 - When running on **CPU**:
   - The **1.12 GB embedding table is memory-mapped (`mmap`) directly from flash storage**, consuming **0 bytes** of heap memory.
@@ -321,7 +321,7 @@ graph TD
 
 ### Prerequisites
 - Flutter SDK `^3.13.2` or later.
-- Physical Android device (recommended: 8 GB RAM, Android 12+, Snapdragon 6-series or better).
+- Physical Android device (recommended: 8 GB RAM, Android 12+, MediaTek Dimensity 7050 / Snapdragon 7-series or better).
 - Fast Wi-Fi connection (for the one-time ~2.74 GB model download).
 - *(Optional)* HuggingFace Access Token.
 
