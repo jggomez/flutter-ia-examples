@@ -93,10 +93,11 @@ Status: architecture and full Clean Architecture implementation complete (**78/7
 unit, widget, and regression tests passing**; `flutter analyze` clean with 0 issues).
 Verified and benchmarked on physical Android hardware: **OPPO Reno10 5G (`CPH2531`, Android 15 / API 35,
 MediaTek Dimensity 7050, 8 GB RAM, Arm Mali-G68 MC4 GPU, Impeller Vulkan 120Hz)** with ~9.6s–12.2s prefill and ~7.8–9.0 tokens/sec decode throughput.
+[![Watch on YouTube Shorts](https://img.shields.io/badge/YouTube_Shorts-Watch_StudyGemma_Demo-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://youtube.com/shorts/Aj-404FV_dE)
 
-| Live Walkthrough Demo (Click for Video) | Dual-Model Setup | 4-Stage Indexing Progress |
+| Live Walkthrough Demo (Click for YouTube) | Dual-Model Setup | 4-Stage Indexing Progress |
 | :---: | :---: | :---: |
-| [![StudyGemma Live Demo](images/rag_study/00-study-gemma-demo.gif)](images/rag_study/study-gemma-demo.mp4) | <img src="images/rag_study/01-setup-dual-models.jpeg" alt="StudyGemma Setup" width="240" /> | <img src="images/rag_study/03-library-indexing-progress.jpeg" alt="4-Stage Indexing Progress" width="240" /> |
+| [![StudyGemma Live Demo](images/rag_study/00-study-gemma-demo.gif)](https://youtube.com/shorts/Aj-404FV_dE) | <img src="images/rag_study/01-setup-dual-models.jpeg" alt="StudyGemma Setup" width="240" /> | <img src="images/rag_study/03-library-indexing-progress.jpeg" alt="4-Stage Indexing Progress" width="240" /> |
 
 | Indexed Document Catalog | Grounded Summary (English) | Cross-Lingual Q&A (Spanish) |
 | :---: | :---: | :---: |

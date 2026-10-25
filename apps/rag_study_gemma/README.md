@@ -17,10 +17,10 @@ chat with grounded conceptual summaries, cross-lingual Q&A, and `[Doc, p. N]` ci
 
 ## Demo Video & Feature Walkthrough (Physical Android Device)
 
-| Live Demo (Animated GIF · Click to Open Full Video) |
+| Live Demo (Animated GIF · Click to Watch on YouTube Shorts) |
 | :---: |
-| [![StudyGemma Live Demo](../../images/rag_study/00-study-gemma-demo.gif)](../../images/rag_study/study-gemma-demo.mp4) |
-| *Click GIF to open the [full-resolution recording](../../images/rag_study/study-gemma-demo.mp4) (16 MB, recorded on `CPH2531`)* |
+| [![StudyGemma Live Demo](../../images/rag_study/00-study-gemma-demo.gif)](https://youtube.com/shorts/Aj-404FV_dE) |
+| [![Watch on YouTube Shorts](https://img.shields.io/badge/YouTube_Shorts-Watch_Full_Demo-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://youtube.com/shorts/Aj-404FV_dE)<br>*[https://youtube.com/shorts/Aj-404FV_dE](https://youtube.com/shorts/Aj-404FV_dE) — Recorded on OPPO Reno10 5G (`CPH2531`)* |
 
 ### 1. Dual-Model Setup & PDF Study Library
 
