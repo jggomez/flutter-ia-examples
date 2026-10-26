@@ -25,6 +25,17 @@ device (`CPH2531`, Android 15).
 
 ---
 
+## Core AI & Flutter Libraries
+
+| Library | Version | Role in RPS Live |
+| :--- | :--- | :--- |
+| [**`flutter_litert`**](https://pub.dev/packages/flutter_litert) | `^3.8.0` | On-device LiteRT (`.tflite`) interpreter with `XNNPACK` (Android) and `Metal` (iOS) hardware delegates. |
+| [**`camera`**](https://pub.dev/packages/camera) | `^0.12.1` | Real-time `YUV420` / `BGRA8888` frame streaming with live front/rear camera lens switching. |
+| [**`flutter_riverpod`**](https://pub.dev/packages/flutter_riverpod) | `^3.4.3` | Reactive `Notifier` ViewModels, single DI root, and reference-counted camera/interpreter lifecycle. |
+| [**`hive`**](https://pub.dev/packages/hive) & [**`hive_flutter`**](https://pub.dev/packages/hive_flutter) | `^2.2.3` / `^1.1.0` | Local `TypeAdapter` persistence for completed rounds and lifetime Win/Loss/Draw statistics. |
+
+---
+
 ## Screenshots & Feature Walkthrough (Physical Android Device)
 
 ### 1. "You vs. AI" Mode (`VsAiScreen`) — Live Viewfinder & Gesture Detection
@@ -216,3 +227,12 @@ The automated test suite (**77 tests**) fakes the camera and the LiteRT
 classifier (`test/support/fakes.dart`) — no real camera hardware or `.tflite`
 runtime is required to run it. `test/regression/` contains dedicated regression
 tests for the reference-counted provider lifecycle across tab switches.
+
+---
+
+## References
+
+- [`flutter_litert` on pub.dev](https://pub.dev/packages/flutter_litert) & [`camera` on pub.dev](https://pub.dev/packages/camera)
+- [Google AI Edge LiteRT (TensorFlow Lite) Documentation](https://ai.google.dev/edge/litert)
+- [Training Notebook (`notebooks/Deep_Learning_tensorflow_lite_01.ipynb`)](../../notebooks/Deep_Learning_tensorflow_lite_01.ipynb)
+

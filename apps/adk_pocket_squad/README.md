@@ -9,6 +9,19 @@ Pocket Squad is a 100% offline, on-device **Hierarchical + Sequential Multi-Agen
 
 ---
 
+## Core AI, ADK & Flutter Libraries
+
+| Library | Version | Role in Pocket Squad |
+| :--- | :--- | :--- |
+| [**`flutter_adk`**](https://pub.dev/packages/flutter_adk) | `^2026.10.23` | Flutter ADK UI & controller layer (`AdkChatController`, `AdkChatView`, `AdkWorkflowStepsView`, `AdkStateInspectorView`, `AdkToolExecutionCard`, `AdkDevStudioView`). |
+| [**`adk_dart`**](https://pub.dev/packages/adk_dart) | `^2026.10.23` | Pure-Dart Agent Development Kit core (`LlmAgent`, `SequentialAgent`, `FunctionTool`, `BaseLlm`, `LiteLlm`, `InMemoryRunner`, `transfer_to_agent`, `AutoFlow` / `SingleFlow`). |
+| [**`flutter_edge_ai`**](https://pub.dev/packages/flutter_edge_ai) | `^2.5.1` | Core Flutter Edge AI SDK providing the unified on-device LLM session and model management abstractions. |
+| [**`flutter_edge_ai_litertlm`**](https://pub.dev/packages/flutter_edge_ai_litertlm) | `^1.17.0` | Native Google AI Edge LiteRT-LM runtime bindings running `gemma-4-E2B-it.litertlm` (`2.58 GB`) on CPU `mmap` (`PreferredBackend.cpu`). |
+| [**`flutter_riverpod`**](https://pub.dev/packages/flutter_riverpod) | `^3.0.3` | Reactive state management (`Notifier`) and single Dependency Injection composition root (`app_providers.dart`). |
+| [**`shared_preferences`**](https://pub.dev/packages/shared_preferences) & [**`path_provider`**](https://pub.dev/packages/path_provider) | `^2.3.3` / `^2.1.5` | Local JSON persistence for the **Trips Vault** (`SavedTrip`) and sandboxed storage for the `.litertlm` model artifact. |
+
+---
+
 ## Multi-Agent System (MAS) Architecture
 
 ```mermaid
@@ -120,3 +133,14 @@ flutter run --dart-define-from-file=dart_defines.local.json
 cd apps/adk_pocket_squad
 flutter analyze && flutter test
 ```
+
+---
+
+## References
+
+- [Google Agent Development Kit (ADK) Documentation](https://google.github.io/adk-docs/)
+- [`flutter_adk` on pub.dev](https://pub.dev/packages/flutter_adk) & [`adk_dart` on pub.dev](https://pub.dev/packages/adk_dart)
+- [`flutter_edge_ai` on pub.dev](https://pub.dev/packages/flutter_edge_ai) & [`flutter_edge_ai_litertlm` on pub.dev](https://pub.dev/packages/flutter_edge_ai_litertlm)
+- [Google AI Edge & LiteRT-LM Overview](https://ai.google.dev/edge/litert)
+- [Gemma 4 Open Models Documentation](https://ai.google.dev/gemma)
+
