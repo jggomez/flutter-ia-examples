@@ -103,32 +103,28 @@ MediaTek Dimensity 7050, 8 GB RAM, Arm Mali-G68 MC4 GPU, Impeller Vulkan 120Hz)*
 | :---: | :---: | :---: |
 | <img src="images/rag_study/04-library-indexed-document.jpeg" alt="Indexed Document Catalog" width="240" /> | <img src="images/rag_study/05-chat-summary-en.jpeg" alt="Grounded Summary in English" width="240" /> | <img src="images/rag_study/06-chat-crosslingual-es-citations.jpeg" alt="Cross-Lingual Spanish Q&A" width="240" /> |
 
-### `apps/adk_pocket_squad` — Pocket Squad (100% On-Device Multi-Agent Travel & Budget Concierge with `flutter_adk` + Gemma 4 E2B IT)
+### `apps/adk_pocket_squad` — Pocket Squad (On-Device Multi-Agent Travel & Budget Concierge with `flutter_adk` + Gemma 4 E2B IT)
 
-A 100% offline, on-device **Hierarchical + Sequential Multi-Agent Travel & Budget Concierge**
+A 100% offline, on-device **Hierarchical + Sequential Multi-Agent System (MAS)**
 built with Flutter, **Google's Agent Development Kit (`flutter_adk`)**, and a single shared
-**Gemma 4 E2B IT (`gemma-4-E2B-it.litertlm`, ~2.58 GB)** runtime via `flutter_edge_ai_litertlm` (LiteRT-LM).
-
-A conversational **CoordinatorAgent** conducts multi-turn intake to capture Destination,
-Duration (days), and Budget. Once complete, it executes ADK's built-in `transfer_to_agent`
-to launch a specialized 3-agent pipeline:
-1. **ScoutAgent**: Drafts day-by-day morning/afternoon/evening itineraries using 100% native LLM world knowledge (**0 tools**).
-2. **BudgetAuditorAgent**: Invokes `calculate_budget_math` (**FunctionTool**) for deterministic multi-day arithmetic, 10% contingency reserves, and offline currency conversion (`COP`, `USD`, `EUR`, `JPY`, `GBP`, `MXN`).
-3. **ConciergeAgent**: Invokes `save_trip_plan` (**FunctionTool**) to persist the dossier to the local Saved Trips Vault and provides local gastronomy, transit tips, and packing checklists.
-
-See [`apps/adk_pocket_squad/README.md`](apps/adk_pocket_squad/README.md).
+**Gemma 4 E2B IT (`gemma-4-E2B-it.litertlm`, ~2.58 GB)** runtime via `flutter_edge_ai_litertlm`.
+A conversational **CoordinatorAgent** (`AutoFlow`) captures `Destination`, `Days`, and `Budget` across
+turns and invokes `transfer_to_agent('pocket_squad_pipeline')` to run a 3-agent sequential pipeline
+(`SingleFlow`): **ScoutAgent** (`0` tools, native LLM world knowledge day-by-day itinerary) →
+**BudgetAuditorAgent** (`calculate_budget_math` deterministic audit, 10% contingency, currency conversion) →
+**ConciergeAgent** (`save_trip_plan` local gastronomy, packing tips, and **Trips Vault** persistence). See
+[`apps/adk_pocket_squad/README.md`](apps/adk_pocket_squad/README.md).
 
 Status: architecture and Clean Architecture implementation complete (**36/36 unit, multi-agent pipeline, and widget tests passing**; `flutter analyze` clean with 0 issues).
-Verified and benchmarked on physical Android hardware: **OPPO Reno10 5G (`CPH2531`, Android 15 / API 35,
-MediaTek Dimensity 7050, 8 GB RAM, Arm Mali-G68 MC4 GPU, Impeller Vulkan 120Hz)** with ~0.8 GB resident working set via CPU `mmap`.
+Verified on physical Android hardware: **OPPO Reno10 5G (`CPH2531`, Android 15 / API 35, 8 GB RAM, Impeller Vulkan 120Hz)** with ~0.8 GB resident RAM via CPU `mmap`.
 
 ```mermaid
 flowchart LR
-    User["Traveler Prompt"] --> Coord["0. CoordinatorAgent\n(Conversational Intake)"]
-    Coord -->|"transfer_to_agent"| Scout["1. ScoutAgent\n(World Knowledge Itinerary)"]
-    Scout -->|"session.state"| Auditor["2. BudgetAuditorAgent\n(calculate_budget_math)"]
-    Auditor -->|"session.state"| Concierge["3. ConciergeAgent\n(save_trip_plan -> Vault)"]
-    Concierge --> UI["Specialist Cards & Trips Vault"]
+    User["Traveler Prompt"] --> Coord["0. CoordinatorAgent\n(Multi-Turn Intake · AutoFlow)"]
+    Coord -->|"transfer_to_agent"| Scout["1. ScoutAgent\n(World Knowledge · 0 tools)"]
+    Scout -->|"itinerary_draft"| Auditor["2. BudgetAuditorAgent\n(calculate_budget_math)"]
+    Auditor -->|"budget_audit"| Concierge["3. ConciergeAgent\n(save_trip_plan -> Vault)"]
+    Concierge -->|"final_concierge_brief"| UI["Specialist Cards & Trips Vault"]
 ```
 
 | Squad Mission Ready & Presets | Conversational Multi-Turn Intake | Coordinator Handoff & Stepper | ScoutAgent Day 1 Itinerary |

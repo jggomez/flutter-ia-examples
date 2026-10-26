@@ -1,272 +1,122 @@
-# Pocket Squad — 100% On-Device Multi-Agent Travel & Budget Concierge (flutter_adk + Gemma 4 E2B IT)
+# Pocket Squad — On-Device Multi-Agent Travel & Budget Concierge (flutter_adk + Gemma 4 E2B IT)
 
-A 100% offline, on-device **Hierarchical + Sequential Multi-Agent Travel & Budget Concierge** built with Flutter, **Google's Agent Development Kit (`flutter_adk`)**, and a single shared **Gemma 4 E2B IT (`gemma-4-E2B-it.litertlm`, ~2.58 GB)** runtime via `flutter_edge_ai_litertlm` (LiteRT-LM).
+Pocket Squad is a 100% offline, on-device **Hierarchical + Sequential Multi-Agent System (MAS)** built with Flutter, **Google's Agent Development Kit (`flutter_adk`)**, and a single shared **Gemma 4 E2B IT (`gemma-4-E2B-it.litertlm`, ~2.58 GB)** runtime via `flutter_edge_ai_litertlm` (with optional LAN Ollama switching via `LiteLlm`). A conversational root **CoordinatorAgent** handles multi-turn intake and delegates complete travel requests to a 3-agent sequential pipeline (**ScoutAgent** → **BudgetAuditorAgent** → **ConciergeAgent**) to plan day-by-day itineraries, audit multi-currency budgets deterministically, and persist finalized dossiers into a local **Trips Vault**.
 
-Pocket Squad turns a mobile phone into a personal travel planning agency. A conversational **Coordinator** greets travelers, answers questions, and conducts intelligent intake across multiple conversational turns. Once the destination, duration, and budget are identified, the Coordinator automatically delegates execution via ADK's `transfer_to_agent` tool to a specialized 3-agent pipeline:
-1. **ScoutAgent**: Leverages pure LLM world knowledge (**0 tools**) to design an authentic day-by-day morning/afternoon/evening itinerary with local landmarks, culinary hubs, and hidden gems.
-2. **BudgetAuditorAgent**: Invokes `calculate_budget_math` (**FunctionTool**) for deterministic multi-day arithmetic, 10% contingency reserves, and offline currency conversion (`COP`, `USD`, `EUR`, `JPY`, `GBP`, `MXN`).
-3. **ConciergeAgent**: Invokes `save_trip_plan` (**FunctionTool**) to persist the finalized dossier into the local **Saved Trips Vault** and delivers tailored gastronomy recommendations, transport tips, and packing checklists.
+## Status
 
----
-
-## Status & Hardware Verification
-
-- **Verification**: Verified on physical Android hardware: **OPPO Reno10 5G (`CPH2531`, Android 15 / API 35, MediaTek Dimensity 7050, 8 GB RAM, Arm Mali-G68 MC4 GPU, Impeller Vulkan 120Hz)**.
-- **Test Suite**: **36/36 tests passing** (`flutter test`) across unit, multi-agent pipeline, and widget suites.
-- **Static Analysis**: `flutter analyze` clean with **0 issues**.
-- **Memory Optimization**: **~0.8 GB resident working set** via `PreferredBackend.cpu` and flash memory mapping (`mmap`). The 1.12 GB embedding table is mapped with 0 MB heap overhead, eliminating the 3.4 GB `mali_gralloc` allocation crash that occurs when attempting OpenCL GPU execution on 8 GB devices.
-- **Privacy & Connectivity**: 100% private, local, and offline after one-time model setup. Zero recurring API costs, zero cloud telemetry.
+- **Hardware Verified**: **OPPO Reno10 5G (`CPH2531`, Android 15 / API 35, 8 GB RAM, Impeller Vulkan 120Hz)** — **~0.8 GB resident RAM** via CPU `mmap`.
+- **Static Analysis**: `flutter analyze` clean (`0` issues) · **Test Suite**: **36/36** tests passing (`flutter test`).
 
 ---
 
-## Feature Walkthrough & On-Device Screenshots (Physical Android Device)
-
-### 1. Conversational Intake & Curated Mission Presets
-
-The conversational front-desk **Coordinator** allows users to explore destinations via curated preset missions (*Cartagena Caribbean Escape*, *Kyoto Cultural Deep-Dive*, *Lisbon Coastal Explorer*, *Reykjavik Glacier Discovery*) or chat naturally across multiple turns to collect missing trip parameters:
-
-| Squad Mission Ready & Presets | Conversational Multi-Turn Intake | Coordinator Handoff (`transfer_to_agent`) |
-| :---: | :---: | :---: |
-| <img src="../../images/adk_pocket/01-squad-mission-ready.jpeg" alt="Squad Mission Ready" width="260" /> | <img src="../../images/adk_pocket/08-coordinator-conversational-intake.jpeg" alt="Conversational Multi-Turn Intake" width="260" /> | <img src="../../images/adk_pocket/02-coordinator-handoff-streaming.jpeg" alt="Coordinator Handoff and Streaming" width="260" /> |
-| Editorial travel header (`On-Device Gemma 4 E2B`), `coordinator_agent > Ready` pipeline stepper, and curated mission preset chips | When given partial intake (*"ahora quiero ir a las vegas"*), Coordinator asks only for the 2 missing fields (days & budget) before launching | Complete mission intake triggers `transfer_to_agent('pocket_squad_pipeline')`; stepper spins live on `1. ScoutAgent` |
-
----
-
-### 2. Multi-Agent Sequential Execution & 3 Specialist Cards
-
-Once delegated to `pocket_squad_pipeline`, each specialist agent executes in sequence, producing rich, distinct specialist cards in the chat while keeping technical tool payloads out of the conversational stream:
-
-| Specialist Card 1: ScoutAgent (Day 1 Itinerary) | Sequential Handoff: ScoutAgent to BudgetAuditor |
-| :---: | :---: |
-| <img src="../../images/adk_pocket/03-scout-agent-day1-itinerary.jpeg" alt="ScoutAgent Day 1 Itinerary" width="260" /> | <img src="../../images/adk_pocket/04-scout-day3-and-budget-auditor.jpeg" alt="Handoff to BudgetAuditor" width="260" /> |
-| `ScoutAgent` drafts Day 1 (*Centro Histórico y Ciudad Amurallada*) with morning, afternoon, and evening landmarks using 100% LLM world knowledge (`0 tools`); top bar shows live `$644 · WITHIN BUDGET` | Smooth transition from `ScoutAgent` Day 3 (*Islas del Rosario & Playa Blanca*) to `BudgetAuditorAgent` in the exact same conversation turn |
-
-| Specialist Card 2: BudgetAuditor (`calculate_budget_math`) | Specialist Card 3: Concierge (`save_trip_plan`) |
-| :---: | :---: |
-| <img src="../../images/adk_pocket/05-budget-auditor-math-breakdown.jpeg" alt="BudgetAuditor Mathematical Audit" width="260" /> | <img src="../../images/adk_pocket/06-concierge-gastronomy-and-tips.jpeg" alt="Concierge Gastronomy and Tips" width="260" /> |
-| Itemized audit from `CalculateTripBudgetUseCase`: Lodging (`$330.0`), Food (`$135.0`), Activities (`$120.0`), 10% Contingency (`$58.5`), Grand Total (`$643.5 USD` / `2,734,875 COP`), Delta (`+$106.5 USD`), and `WITHIN BUDGET` verdict | Local gastronomy (*Arepa de Huevo*, *Arroz con Coco*, *Pargo Frito*), insider logistics, and packing checklist saved to `Trips Vault` (badge `2`) |
-
----
-
-### 3. ADK Pipeline Inspector, Shared Session State & Tool Telemetry
-
-Pocket Squad incorporates `flutter_adk`'s diagnostic tools across specialized tabs:
-
-| Tab 2 — Pipeline & State Inspector |
-| :---: |
-| <img src="../../images/adk_pocket/07-pipeline-state-and-tool-calls.jpeg" alt="Pipeline and State Inspector" width="270" /> |
-| Visualizes the `Hierarchical Multi-Agent Architecture` graph (`coordinator_agent` → `transfer_to_agent` → `pocket_squad_pipeline`) and expandable `Executed Tool Calls & Handoffs` cards (`transfer_to_agent`, `calculate_budget_math`, `save_trip_plan`), isolating developer telemetry from the user-facing chat. |
-
-- **Tab 3 — Saved Trips Vault (`SavedTripsVaultTab`)**: Renders all persisted trips saved by `ConciergeAgent`'s `save_trip_plan` tool. Tapping any card opens a full-screen **View Final Result & Full Itinerary** modal sheet with complete day-by-day routes, audited financial tables, and packing checklists.
-- **Tab 4 — ADK Studio (`AdkDevStudioView`)**: Embeds `flutter_adk`'s developer IDE with its persistent **Live Logger**, tracking raw LLM requests, token usage, tool invocations, and session transitions in real time.
-
----
-
-## How It Works & Multi-Agent Architecture
-
-### 1. Hierarchical + Sequential Multi-Agent Graph
+## Multi-Agent System (MAS) Architecture
 
 ```mermaid
 flowchart TD
-    User["Traveler User Prompt\n('Cartagena 3 Days $750 USD' or 'Hola')"] --> Intake["EvaluateTripIntakeUseCase\n(Aggregates Destination + Days + Budget)"]
-    Intake --> Coord["CoordinatorAgent (LlmAgent)\n(name: 'coordinator_agent', subAgents: [pipeline])"]
+    Prompt["Traveler Prompt\n('Cartagena 3 Days $750 USD' or 'Hola')"] --> Intake["EvaluateTripIntakeUseCase\n(Checks Destination + Days + Budget across turns)"]
+    Intake --> Coord["0. CoordinatorAgent (LlmAgent · AutoFlow)\n(name: 'coordinator_agent', subAgents: [pocket_squad_pipeline])"]
 
-    Coord -- "Incomplete Intake\n(e.g., 'Hola' or 'Quiero ir a Tokio')" --> Ask["Conversational Intake Reply\n(Asks only for missing parameters)"]
-    Ask --> User
+    Coord -- "Incomplete Intake\n('Hola' / 'ahora quiero ir a las vegas')" --> Reply["Conversational Reply\n(Asks only for missing parameters)"]
+    Reply --> Prompt
 
-    Coord -- "Complete Intake\n(Destination + Days + Budget)" --> Handoff["transfer_to_agent\n('pocket_squad_pipeline')"]
+    Coord -- "Complete Intake\n(Destination + Days + Budget)" --> Transfer["transfer_to_agent('pocket_squad_pipeline')"]
 
-    subgraph Pipeline ["SequentialAgent: pocket_squad_pipeline"]
-        Scout["1. ScoutAgent (LlmAgent)\n(outputKey: 'itinerary_draft', 0 tools)\n100% Native LLM World Knowledge\nDay-by-Day (Morning / Afternoon / Evening)"]
-        
-        Auditor["2. BudgetAuditorAgent (LlmAgent)\n(outputKey: 'budget_audit')\nFunctionTool: calculate_budget_math\nCalls CalculateTripBudgetUseCase"]
-        
-        Concierge["3. ConciergeAgent (LlmAgent)\n(outputKey: 'final_concierge_brief')\nFunctionTool: save_trip_plan\nCalls SaveTripPlanUseCase -> Trips Vault"]
+    subgraph Pipeline ["SequentialAgent: pocket_squad_pipeline (SingleFlow)"]
+        Scout["1. ScoutAgent (LlmAgent · 0 tools)\nNative Gemma 4 World Knowledge\nDay-by-Day (Día 1..N Morning/Afternoon/Evening)"]
+        Auditor["2. BudgetAuditorAgent (LlmAgent)\nFunctionTool: calculate_budget_math\n(CalculateTripBudgetUseCase)"]
+        Concierge["3. ConciergeAgent (LlmAgent)\nFunctionTool: save_trip_plan\n(SaveTripPlanUseCase -> Trips Vault)"]
 
         Scout -->|"session.state['itinerary_draft']"| Auditor
         Auditor -->|"session.state['budget_audit']"| Concierge
     end
 
-    Handoff --> Scout
-    Concierge --> UI["UI Synchronization & Specialist Cards\n(AdkChatView, PipelineInspectorTab, SavedTripsVaultTab)"]
+    Transfer --> Scout
+    Concierge -->|"session.state['final_concierge_brief']"| UI["AdkChatView · PipelineInspectorTab · SavedTripsVaultTab"]
+
+    subgraph Runtime ["Shared On-Device Runtime (~0.8 GB Resident RAM)"]
+        Bridge["OnDeviceLiteRtGemmaLlm (BaseLlm)"] --> Driver["LiteRtChatDriver Singleton\n(Gemma 4 E2B IT · CPU mmap · Serialized _turnLock)"]
+    end
+
+    Coord -.-> Bridge
+    Scout -.-> Bridge
+    Auditor -.-> Bridge
+    Concierge -.-> Bridge
 ```
 
----
+### Agent Roles, Tools & State Contract
 
-### 2. On-Device `OnDeviceLiteRtGemmaLlm` Bridge & Deterministic `FunctionTool` Loop
+| Agent | ADK Type & Flow | Tools / Domain UseCase | Shared State Output (`AdkSession.state`) | Responsibility |
+| :--- | :--- | :--- | :--- | :--- |
+| **`0. coordinator_agent`** | Root `LlmAgent` (`AutoFlow`) | `transfer_to_agent` + `EvaluateTripIntakeUseCase` | — | Greets the user, collects missing trip parameters (`Destination`, `Days`, `Budget`) across turns, and delegates to `pocket_squad_pipeline` once complete. |
+| **`1. scout_agent`** | Pipeline `LlmAgent` (`SingleFlow`) | **None (`0` tools)** | `itinerary_draft` | Uses 100% native `Gemma 4 E2B IT` world knowledge (`maxOutputTokens: 550`) to design a real Day-by-Day (`Día 1..N` Morning/Afternoon/Evening) sightseeing route. |
+| **`2. budget_auditor_agent`** | Pipeline `LlmAgent` (`SingleFlow`) | `calculate_budget_math` (`CalculateTripBudgetUseCase`) | `budget_audit` | Extracts daily cost estimates from `{itinerary_draft}` and executes deterministic math (lodging, food, activities, 10% contingency, currency conversion, budget delta). |
+| **`3. concierge_agent`** | Pipeline `LlmAgent` (`SingleFlow`) | `save_trip_plan` (`SaveTripPlanUseCase`) | `final_concierge_brief` | Synthesizes local gastronomy, insider logistics, and packing tips (without repeating the budget table) and saves the full dossier to the **Trips Vault**. |
 
-```mermaid
-sequenceDiagram
-    autonumber
-    participant Runner as ADK InMemoryRunner
-    participant Bridge as OnDeviceLiteRtGemmaLlm (BaseLlm)
-    participant Driver as LiteRtChatDriverImpl (Singleton)
-    participant Gemma as Gemma 4 E2B IT (LiteRT-LM CPU mmap)
-    participant Tool as FunctionTool (Domain Use Case)
-    participant State as AdkSession.state
+### Key MAS Design Decisions
 
-    Runner->>Bridge: generateContent(request)
-    Bridge->>Driver: acquire serialized _turnLock
-    Driver->>Gemma: create fresh InferenceChat session & prompt
-    Gemma-->>Driver: text completion (<tool_call>{"name": "...", "args": {...}}</tool_call>)
-    Driver-->>Bridge: raw response string
-    Bridge-->>Runner: LlmResponse(Part.fromFunctionCall(name, args))
-    Runner->>Tool: execute(args) -> CalculateTripBudgetUseCase / SaveTripPlanUseCase
-    Tool->>State: update session.state (budgetBreakdown / savedTrip)
-    Tool-->>Runner: FunctionResponse(resultMap)
-    Runner->>Bridge: generateContent(request + FunctionResponse)
-    Bridge->>Driver: prompt with tool response
-    Driver->>Gemma: generate formatted specialist narrative
-    Gemma-->>Driver: clean human-readable text
-    Driver-->>Bridge: formatted response string
-    Bridge-->>Runner: LlmResponse(text)
-    Runner-->>Bridge: release _turnLock
-```
+1. **Hierarchical Intake + Sequential Pipeline**: `CoordinatorAgent` handles open-ended multi-turn chat and only triggers the 3-agent `SequentialAgent` pipeline via `transfer_to_agent('pocket_squad_pipeline')` once all 3 trip parameters (`Destination`, `Days`, `Budget`) are present.
+2. **Strict Pipeline Flow Control (`disallowTransferToParent` & `disallowTransferToPeers`)**: In `flutter_adk`, `CoordinatorAgent` uses `AutoFlow` so it can call `transfer_to_agent`. Inside `pocket_squad_pipeline`, all 3 sub-agents set `disallowTransferToParent: true` and `disallowTransferToPeers: true` (`SingleFlow`), preventing the compact 2B model from re-invoking `transfer_to_agent` or jumping out of sequence.
+3. **Authentic LLM Knowledge vs. Deterministic `FunctionTool`s**: `ScoutAgent` uses `0` tools so `Gemma 4 E2B IT` generates real landmarks and neighborhoods from its weights, while arithmetic (`CalculateTripBudgetUseCase`) and persistence (`SaveTripPlanUseCase`) are delegated to pure-Dart `FunctionTool`s so the LLM never hallucinates math.
+4. **Single Shared 2.58 GB Model in ~0.8 GB RAM**: All 4 agents share one `LiteRtChatDriverImpl` singleton backed by CPU `mmap` (`PreferredBackend.cpu`), a serialized `_turnLock`, and a fresh `InferenceChat` session per agent turn to prevent KV-cache overflow on 8 GB phones.
 
 ---
 
-## Architectural Deep Dives
+## On-Device Screenshots (OPPO Reno10 5G)
 
-### 1. Clean Architecture Domain Use Cases (`lib/domain/use_cases/`)
-Business rules are isolated in pure Dart domain use cases that have zero dependencies on Flutter UI or `flutter_adk`:
-- **`EvaluateTripIntakeUseCase`**: Analyzes multi-turn conversation text to detect Destination, Duration in days, and Budget amount/currency. It provides `TripIntakeReadiness` with `isComplete` and `missingFields` lists, allowing `CoordinatorAgent` to maintain a natural conversation without premature pipeline execution.
-- **`CalculateTripBudgetUseCase`**: Performs exact, deterministic multi-day financial arithmetic:
-  $$\text{Subtotal} = (\text{days} \times \text{lodging}) + (\text{days} \times \text{food}) + \text{activities}$$
-  $$\text{Contingency} = \text{Subtotal} \times 0.10$$
-  $$\text{Grand Total} = \text{Subtotal} + \text{Contingency}$$
-  Applies offline currency conversion (`COP`, `EUR`, `JPY`, `GBP`, `MXN`, `CAD`, `AUD`, `CHF`) and computes `budgetDeltaUsd = userBudgetUsd - grandTotalUsd`.
-- **`SaveTripPlanUseCase`**: Constructs a finalized `SavedTrip` domain entity with timestamps, itemized budget figures, itinerary summaries, and packing checklists, persisting it via `AppStorageService` into local device storage.
+| 1. Squad Mission Ready | 2. Multi-Turn Intake | 3. Coordinator Handoff | 4. ScoutAgent Day 1 |
+| :---: | :---: | :---: | :---: |
+| <img src="../../images/adk_pocket/01-squad-mission-ready.jpeg" alt="Squad Mission Ready" width="230" /> | <img src="../../images/adk_pocket/08-coordinator-conversational-intake.jpeg" alt="Conversational Intake" width="230" /> | <img src="../../images/adk_pocket/02-coordinator-handoff-streaming.jpeg" alt="Coordinator Handoff" width="230" /> | <img src="../../images/adk_pocket/03-scout-agent-day1-itinerary.jpeg" alt="ScoutAgent Day 1" width="230" /> |
+| Curated mission presets & `coordinator_agent > Ready` stepper | Coordinator asks only for missing days & budget (`Las Vegas`) | `transfer_to_agent` triggers live `1. ScoutAgent` execution | `ScoutAgent` drafts Day 1 morning/afternoon/evening route |
 
-### 2. Flow Control: Why `disallowTransferToParent: true` & `disallowTransferToPeers: true`
-In `flutter_adk`, the framework dynamically selects between **`SingleFlow`** and **`AutoFlow`**:
-- When an agent has sub-agents or is part of a hierarchical group, ADK automatically injects the `transfer_to_agent` tool into the prompt so the LLM can route conversations.
-- **`CoordinatorAgent`** explicitly enables `AutoFlow` because its sole responsibility is to evaluate intake readiness and trigger `transfer_to_agent('pocket_squad_pipeline')`.
-- Once inside `pocket_squad_pipeline`, **`ScoutAgent`**, **`BudgetAuditorAgent`**, and **`ConciergeAgent`** must execute strictly in sequence. On edge devices with compact models (2B parameters), models can occasionally attempt to re-invoke `transfer_to_agent` or jump between peers if the transfer tool is exposed.
-- By configuring `disallowTransferToParent: true` and `disallowTransferToPeers: true` on all 3 pipeline agents, ADK enforces `SingleFlow` within the pipeline. This guarantees that the 2B model executes its dedicated specialized turn, calls only its registered `FunctionTool`, and hands control to the next sequential agent without short-circuiting.
-
-### 3. Authentic LLM World Knowledge vs. Deterministic `FunctionTool` Boundary
-Many agent frameworks fall into one of two anti-patterns:
-1. *Over-tooling*: Hardcoding a toy in-memory database of cities and landmarks, which defeats the purpose of an LLM.
-2. *Under-tooling*: Asking the LLM to perform multi-step floating-point arithmetic and currency conversions in natural language, which causes severe hallucination.
-
-Pocket Squad enforces an authentic boundary:
-- **`ScoutAgent` uses 0 tools**: Gemma 4 E2B IT has rich, authentic world knowledge of real-world cities (neighborhoods, historical monuments, local markets, metro lines). It drafts authentic day-by-day itineraries entirely natively.
-- **`BudgetAuditorAgent` uses `calculate_budget_math`**: The LLM extracts estimated unit costs from the itinerary, and the pure-Dart `CalculateTripBudgetUseCase` computes exact multiplication, 10% contingency reserves, and currency exchange rates.
-- **`ConciergeAgent` uses `save_trip_plan`**: The LLM synthesizes travel advice, while the Dart use case guarantees persistent, type-safe JSON storage on the physical filesystem.
-
-### 4. Single Shared 2.58 GB Model in RAM & Dual-Mode Runtime
-Loading multiple instances of `gemma-4-E2B-it.litertlm` (2.58 GB) across 4 agents would immediately exceed mobile device memory limits and cause a crash:
-- **Singleton `LiteRtChatDriverImpl`**: A single shared driver holds the active model weights in memory using CPU memory mapping (`mmap`). Weights reside in flash storage and are paged into ~0.8 GB of resident RAM on demand.
-- **Serialized `_turnLock`**: Agents execute their turns sequentially under an asynchronous lock, ensuring thread-safe access to the single native model instance.
-- **Per-Turn Fresh `InferenceChat` Session**: To prevent KV cache context bloat from accumulating across long agent turns, `LiteRtChatDriverImpl` initializes a fresh `createChat(...)` session for each turn while maintaining the global agent state in `AdkSession.state`.
-- **Dual-Mode Engine Switching (`LlmEngineMode`)**: Users can toggle between **On-Device Gemma 4 E2B (LiteRT-LM)** and **Local LAN Ollama (`LiteLlm`)** at runtime via `EngineModeSheet`.
-
-### 5. Sandboxed Storage & Native Android Wi-Fi Guard
-- **Sandboxed File Location**: On Android, the model artifact is stored at:
-  `/data/user/0/com.jggomez.flutterai.adk_pocket_squad/app_flutter/gemma-4-E2B-it.litertlm`
-  Because each app in the monorepo has its own unique application ID and sandboxed `getApplicationDocumentsDirectory()`, uninstalling other apps (such as `rag_study_gemma` or `event_gemma`) does **not** delete Pocket Squad's downloaded model.
-- **Native Android Wi-Fi MethodChannel**: `MainActivity.kt` registers `com.jggomez.flutterai.adk_pocket_squad/network`, querying Android's `ConnectivityManager` for `NetworkCapabilities.TRANSPORT_WIFI`. The app blocks 2.58 GB cellular downloads and requires an active Wi-Fi connection.
-- **Atomic `.part` Stream & Redirect Sanitization**: `ModelDownloadService` downloads the model to `gemma-4-E2B-it.litertlm.part`, sanitizes cross-host redirects by stripping the `Authorization` header when leaving `huggingface.co` to CDN mirrors, verifies file size (`>= 400 MB`), and atomically renames the file upon completion.
+| 5. Sequential Handoff | 6. BudgetAuditor Math | 7. Concierge & Vault | 8. Pipeline Inspector |
+| :---: | :---: | :---: | :---: |
+| <img src="../../images/adk_pocket/04-scout-day3-and-budget-auditor.jpeg" alt="Sequential Handoff" width="230" /> | <img src="../../images/adk_pocket/05-budget-auditor-math-breakdown.jpeg" alt="BudgetAuditor Math" width="230" /> | <img src="../../images/adk_pocket/06-concierge-gastronomy-and-tips.jpeg" alt="Concierge Gastronomy" width="230" /> | <img src="../../images/adk_pocket/07-pipeline-state-and-tool-calls.jpeg" alt="Pipeline Inspector" width="230" /> |
+| Seamless handoff from `ScoutAgent` Day 3 to `BudgetAuditor` | Deterministic audit (`$643.5 USD` / `2,734,875 COP`, `WITHIN BUDGET`) | Local gastronomy & packing tips saved to `Trips Vault` | Hierarchy graph & expandable `FunctionTool` call logs |
 
 ---
 
-## Architecture & Directory Structure
+## Project Structure & ADRs
 
 ```text
 apps/adk_pocket_squad/
 ├── android/app/src/main/kotlin/.../MainActivity.kt  # Native Wi-Fi MethodChannel (TRANSPORT_WIFI)
 ├── doc/adr/                                         # Architecture Decision Records (0001..0003)
 ├── lib/
-│   ├── main.dart                                    # Entry point, ProviderScope, and Hive bootstrap
+│   ├── main.dart                                    # ProviderScope & Hive bootstrap
 │   ├── domain/
-│   │   ├── models/
-│   │   │   ├── budget_breakdown.dart                # Audited costs, contingency & currency breakdown
-│   │   │   ├── saved_trip.dart                      # Persisted trip dossier domain entity
-│   │   │   ├── squad_mission_preset.dart            # Curated quick-launch destination presets
-│   │   │   ├── model_download_state.dart            # Wi-Fi gated download progress & state
-│   │   │   └── llm_engine_config.dart               # On-Device LiteRT vs LAN Ollama configuration
-│   │   └── use_cases/
-│   │       ├── evaluate_trip_intake_use_case.dart   # Multi-turn conversational intake readiness
-│   │       ├── calculate_trip_budget_use_case.dart  # Deterministic arithmetic & 10% contingency
-│   │       └── save_trip_plan_use_case.dart         # Local storage persistence for Saved Trips Vault
+│   │   ├── models/                                  # BudgetBreakdown, SavedTrip, SquadMissionPreset, LlmEngineConfig
+│   │   └── use_cases/                               # EvaluateTripIntake, CalculateTripBudget, SaveTripPlan
 │   ├── data/
-│   │   ├── agents/
-│   │   │   ├── pocket_squad_agent_factory.dart      # CoordinatorAgent + SequentialAgent pipeline factory
-│   │   │   └── pocket_squad_tools.dart              # FunctionTool wrappers for domain use cases
-│   │   ├── llm/
-│   │   │   ├── litert_chat_driver.dart              # Shared singleton LiteRT-LM CPU mmap driver
-│   │   │   └── on_device_litert_gemma_llm.dart      # BaseLlm bridge with tool-call protocol
-│   │   ├── repositories/
-│   │   │   └── pocket_squad_repository.dart         # High-level mission execution orchestrator
-│   │   └── services/
-│   │       ├── app_storage_service.dart             # SharedPreferences JSON storage for Saved Trips
-│   │       ├── model_download_service.dart          # Atomic .part download with CDN redirect sanitization
-│   │       └── network_connectivity_service.dart    # Platform channel client for TRANSPORT_WIFI
+│   │   ├── agents/                                  # PocketSquadAgentFactory (4-agent MAS) & FunctionTools
+│   │   ├── llm/                                     # OnDeviceLiteRtGemmaLlm (BaseLlm) & LiteRtChatDriver singleton
+│   │   ├── repositories/                            # PocketSquadRepository
+│   │   └── services/                                # AppStorageService, ModelDownloadService, NetworkConnectivity
 │   └── ui/
-│       ├── theme/
-│       │   └── pocket_squad_theme.dart              # Obsidian & Sunset Amber editorial theme
-│       ├── providers/
-│       │   └── app_providers.dart                   # Riverpod DI composition root
-│       ├── view_models/
-│       │   ├── model_download_view_model.dart       # Wi-Fi check & download progress controller
-│       │   └── pocket_squad_view_model.dart         # ADK session, workflow steps & vault state
-│       ├── screens/
-│       │   ├── model_download_screen.dart           # Wi-Fi gate and download progress screen
-│       │   └── pocket_squad_workspace_screen.dart   # 4-tab primary workspace
-│       └── widgets/
-│           ├── flutter_adk_widgets.dart             # Turnkey ADK widget barrel export
-│           ├── squad_pipeline_header.dart           # Live agent hierarchy stepper & budget badge
-│           ├── mission_preset_carousel.dart         # Destination quick-launch cards
-│           ├── formatted_agent_message_view.dart    # Formats specialist cards without raw pipes
-│           ├── pipeline_inspector_tab.dart          # Tab 2: Workflow graph, state & tool inspector
-│           ├── saved_trips_vault_tab.dart           # Tab 3: Persisted trips & full dossier modal
-│           ├── pocket_squad_adk_studio_tab.dart     # Tab 4: Turnkey ADK Dev Studio with Live Logger
-│           └── engine_mode_sheet.dart               # On-Device vs LAN Ollama runtime modal
-└── test/
-    ├── core/
-    │   ├── domain_and_services_test.dart            # Pure domain use cases and service tests
-    │   └── network/network_connectivity_service_test.dart
-    ├── data/
-    │   ├── on_device_litert_gemma_llm_test.dart     # Bridge parsing, fallback extraction & tool calls
-    │   └── pocket_squad_pipeline_test.dart          # Multi-agent sequential execution pipeline tests
-    ├── ui/
-    │   └── pocket_squad_workspace_screen_test.dart  # Multi-tab UI and intake interaction tests
-    └── widget_test.dart                             # App smoke test
+│       ├── providers/ & view_models/                # Riverpod DI & PocketSquadViewModel / ModelDownloadViewModel
+│       ├── screens/                                 # ModelDownloadScreen & 4-tab PocketSquadWorkspaceScreen
+│       └── widgets/                                 # Stepper header, FormattedAgentMessageView, Inspector, Vault, Studio
+└── test/                                            # 36 unit, multi-agent pipeline & widget tests
 ```
 
----
-
-### Architecture Decision Records (`doc/adr/`)
-
-| ADR | Title | Decision Summary |
+| ADR | Title | Summary |
 | :--- | :--- | :--- |
-| [**0001**](doc/adr/0001-on-device-adk-litert-multi-agent-architecture.md) | 100% On-Device ADK + LiteRT-LM Multi-Agent Architecture | Assembles `CoordinatorAgent` (`AutoFlow`) delegating to a 3-agent `SequentialAgent` pipeline (`SingleFlow`) over a single shared `LiteRtChatDriver` (Gemma 4 E2B IT CPU `mmap`, ~0.8 GB RAM). |
-| [**0002**](doc/adr/0002-wifi-method-channel-and-atomic-model-download.md) | Native Wi-Fi `MethodChannel` & Atomic Model Download | Implements Android `TRANSPORT_WIFI` platform channel, cross-host CDN redirect auth stripping, and atomic `.part` verification (`>= 400 MB`) before renaming. |
-| [**0003**](doc/adr/0003-travel-concierge-ux-and-adk-widget-integration.md) | Editorial Luxury Concierge UX & `flutter_adk` Integration | Introduces an Obsidian/Amber theme, custom message bubble formatting that keeps raw tool JSON out of chat, and surfaces developer telemetry in dedicated Inspector and Studio tabs. |
+| [**0001**](doc/adr/0001-on-device-adk-litert-multi-agent-architecture.md) | On-Device ADK + LiteRT-LM Multi-Agent Architecture | `CoordinatorAgent` (`AutoFlow`) + 3-agent `SequentialAgent` (`SingleFlow`) sharing one CPU `mmap` `LiteRtChatDriver`. |
+| [**0002**](doc/adr/0002-wifi-method-channel-and-atomic-model-download.md) | Native Wi-Fi `MethodChannel` & Atomic Model Download | Android `TRANSPORT_WIFI` guard, CDN redirect auth stripping, and atomic `.part` download (`>= 400 MB`). |
+| [**0003**](doc/adr/0003-travel-concierge-ux-and-adk-widget-integration.md) | Editorial Concierge UX & `flutter_adk` Integration | Obsidian/Amber theme, clean specialist cards in chat, and tool/state telemetry in Inspector & Studio tabs. |
 
 ---
 
 ## Running & Testing
 
-### Running
-
 ```bash
+# Run on a physical Android device (8 GB RAM recommended; Wi-Fi required on first launch for ~2.58 GB model)
 cd apps/adk_pocket_squad
 flutter pub get
-flutter run --dart-define-from-file=dart_defines.local.json  # optional HF token
+flutter run --dart-define-from-file=dart_defines.local.json
 ```
-
-Requires a physical Android device (8 GB RAM recommended). On first launch:
-1. Connect to Wi-Fi to download `gemma-4-E2B-it.litertlm` (~2.58 GB).
-2. Tap a curated mission preset (e.g. *Cartagena Caribbean Escape*) or type `"Hola"` to start conversational intake.
-3. Observe real-time agent handoffs from `coordinator_agent` to `scout_agent`, `budget_auditor_agent`, and `concierge_agent`.
-
-### Testing
 
 ```bash
+# Run static analysis and the 36 offline unit, pipeline & widget tests
 cd apps/adk_pocket_squad
-flutter analyze
-flutter test
+flutter analyze && flutter test
 ```
-
-The automated test suite (**36 tests**) runs 100% offline using in-memory mocks and fakes — no physical model download or network connection is required for CI/CD test execution.
