@@ -6,7 +6,7 @@
 
 ## Context & Problem Statement
 
-We need to architect **Pocket Squad** (`apps/adk_pocket_squad`), an on-device Multi-Agent Travel & Budget Concierge running on Android (`OPPO Reno10 5G` / `CPH2531` and general arm64 Android devices) using `flutter_adk` (`^2026.10.23` / `package:adk_dart/adk_core.dart`).
+We need to architect **Pocket Squad** (`apps/adk_pocket_squad`), an on-device Multi-Agent Travel & Budget Concierge running on Android (`physical Android device` / physical Android device and general arm64 Android devices) using `flutter_adk` (`^2026.10.23` / `package:adk_dart/adk_core.dart`).
 
 Key architectural challenges:
 1. **100% On-Device Standalone Execution + Optional LAN Mode**: `flutter_adk` provides `BaseLlm` and `LiteLlm` (for OpenAI-compatible HTTP endpoints like Ollama / LM Studio), while `flutter_edge_ai` (`^0.1.3`) + `flutter_edge_ai_litertlm` (`^0.1.3+1`) provides Dart FFI bindings to Google's LiteRT-LM engine (`gemma-4-E2B-it.litertlm`, `2.58 GB`, `ModelType.gemma4`, `PreferredBackend.cpu`, `mmap` ~0.8 GB RAM). Loading multiple instances of a 2.58 GB model across 3 sub-agents would exhaust mobile RAM.

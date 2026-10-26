@@ -14,8 +14,8 @@
     - Extracted Clean Architecture Domain Use Cases (`EvaluateTripIntakeUseCase`, `CalculateTripBudgetUseCase`, `SaveTripPlanUseCase` in `lib/domain/use_cases/`), enforced Day-by-Day (`Día 1..N` / `Day 1..N` Morning/Afternoon/Evening places) in `scout_agent` (`maxOutputTokens: 550`), split multi-agent responses into 3 separate specialist cards in `Squad Mission`, wired persistent `AdkAgentLogEntry` live telemetry in `ADK Studio -> Live Logger`, and added the full `View Final Result & Full Itinerary` modal sheet in `Trips Vault`.
     - Normalized 8 physical-device screenshots in `images/adk_pocket/01-..08-..jpeg` and authored comprehensive English documentation in `apps/adk_pocket_squad/README.md` and the root monorepo `README.md` with Mermaid architecture diagrams.
 - **Verified 2026-10-25**:
-  - `apps/adk_pocket_squad` — `flutter analyze` clean (0 issues) ✅, `flutter test` 36/36 ✅, live on-device run & 8-screenshot gallery on `OPPO Reno10 5G` (`CPH2531` · `SSUS9P9DS4DIV8RC`) with 2.58 GB `gemma-4-E2B-it.litertlm` staged ✅
-  - `apps/rag_study_gemma` — `flutter analyze` clean (0 issues) ✅, `flutter test` 78/78 ✅, live on-device run & benchmarks on `OPPO Reno10 5G` (`CPH2531`) ✅
+  - `apps/adk_pocket_squad` — `flutter analyze` clean (0 issues) ✅, `flutter test` 36/36 ✅, live on-device run & 8-screenshot gallery on physical Android device with 2.58 GB `gemma-4-E2B-it.litertlm` staged ✅
+  - `apps/rag_study_gemma` — `flutter analyze` clean (0 issues) ✅, `flutter test` 78/78 ✅, live on-device run & benchmarks on physical Android device ✅
   - `apps/event_gemma` — `flutter analyze` clean (0 issues) ✅, `flutter test` 147/147 ✅
   - `apps/rps_live` — `flutter analyze` clean ✅, `flutter test` 77/77 ✅
   - `apps/a2ui_snap_sell` — `agent/` (`uv run pytest` 20/20 ✅, Cloud Run live ✅), `mobile/` (`flutter analyze` clean ✅, `flutter test` 43/43 ✅)

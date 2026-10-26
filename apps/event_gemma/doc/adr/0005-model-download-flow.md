@@ -110,7 +110,7 @@ atomic rename**, orchestrated by `ModelDownloadRepositoryImpl`
   network call or touches real device storage, per PLAN.md's testing
   constraint. PLAN.md's on-device checkpoint A (phase 7) is where the real
   ~529 MB download is exercised, once, against the connected Android
-  device (adb id `SSUS9P9DS4DIV8RC`).
+  device .
 - `ValidateDownloadedModelUseCase.minValidSizeBytes` is a single named
   constant `flutter-implementer` must set deliberately (see that class's
   doc comment) — not copy-pasted from an unrelated size assumption.

@@ -13,7 +13,7 @@ thread. The schema is a single flat, append-only entity with no relations
 between messages, no complex filtered/sorted queries — "all messages,
 oldest first" covers every requirement. There is also no real
 device/emulator available in CI/dev for the automated suite (the connected
-Android device, adb id `SSUS9P9DS4DIV8RC`, is reserved for manual on-device
+Android device is reserved for manual on-device
 checkpoints — see PLAN.md — not for `flutter test`), so whatever store is
 chosen must be exercisable in a plain `flutter test` process with no
 platform channel round-trip.

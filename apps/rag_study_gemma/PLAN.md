@@ -49,7 +49,7 @@ Verified against local toolchain (`Flutter 3.47.2` / `Dart 3.13.2`):
 
 ### 2.2 Generative Model — `Gemma 4 E2B IT`
 - **Primary Ungated Repo**: `litert-community/gemma-4-E2B-it-litert-lm` (`gemma-4-E2B-it.litertlm`, ~2.58 GB, mixed 2/4/8-bit quantization, `ModelType.gemma4`)
-- **Runtime Configuration**: Initialized via `FlutterEdgeAi.getActiveModel(maxTokens: 2048, preferredBackend: PreferredBackend.cpu)` so the 1.12 GB embedding table is memory-mapped (`mmap`) directly from storage (~0.8 GB active RAM footprint on XNNPACK CPU without exhausting Mali GPU `mali_gralloc` buffers), and queried with `temperature: 0.3, topK: 40, topP: 0.9, maxOutputTokens: 420, enableThinking: false`.
+- **Runtime Configuration**: Initialized via `FlutterEdgeAi.getActiveModel(maxTokens: 2048, preferredBackend: PreferredBackend.cpu)` so the 1.12 GB embedding table is memory-mapped (`mmap`) directly from storage (~0.8 GB active RAM footprint on XNNPACK CPU without exhausting Mali GPU GPU memory buffers), and queried with `temperature: 0.3, topK: 40, topP: 0.9, maxOutputTokens: 420, enableThinking: false`.
 - **Wi-Fi + HuggingFace Token Onboarding**:
   - Checks active Wi-Fi connection via `NetworkConnectivityService` (`com.jggomez.flutterai.rag_study_gemma/network` channel on Android `ConnectivityManager` `TRANSPORT_WIFI`).
   - Accepts optional HuggingFace Access Token (`hf_...`) via UI input or `--dart-define-from-file=dart_defines.local.json` (`HF_TOKEN`).

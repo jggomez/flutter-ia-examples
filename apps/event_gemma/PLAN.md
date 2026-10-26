@@ -150,7 +150,7 @@ stub bodies, which clear up phase by phase as real logic replaces
    a fake byte-stream/filesystem (see
    `doc/adr/0005-model-download-flow.md`'s non-resumable, atomic-rename
    flow). **ON-DEVICE CHECKPOINT A**: wire into a minimal debug screen, run
-   on the connected Android device (adb id `SSUS9P9DS4DIV8RC`), download
+   on the connected Android device , download
    the real ~529 MB model over real network/storage — confirm progress
    events arrive, the `.part` file appears then disappears, and the final
    model file passes `ValidateDownloadedModelUseCase`.
@@ -403,7 +403,7 @@ stub bodies, which clear up phase by phase as real logic replaces
 - [x] `flutter pub get` exit code 0
 - [x] `flutter analyze` exit code 0 (No issues found)
 - [x] `flutter test` exit code 0 (147/147 tests passed)
-- [x] Tested & launched on physical Android device `CPH2531` (`SSUS9P9DS4DIV8RC`)
+- [x] Tested & launched on physical Android device physical Android device
 - [x] `apps/event_gemma/README.md` updated with ADR 0006, ADR 0007, design system & verified metrics
 - [x] Monorepo `README.md` and sister app READMEs synchronized
 - [x] Cross-AI LLM Wiki memory (`MEMORY.md`, `architecture.md`, `conventions.md`, `log/`) synchronized

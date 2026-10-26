@@ -77,7 +77,7 @@ Build **App 5 (`apps/adk_pocket_squad`)**, a production-grade, 100% on-device Mu
 - [x] **State 0**: Restore `context/memory/MEMORY.md` and author `apps/adk_pocket_squad/PLAN.md`.
 - [x] **State 1**: Update ADRs (`0001..0003`) with Root `CoordinatorAgent` (`LlmAgent`) + `SequentialAgent` (`pocket_squad_pipeline`) handoff.
 - [x] **State 2**: Execute Parallel Track A (Data/ADK Coordinator + Intake Readiness) & Track B (UI/UX Coordinator Badge & 4-Step Pipeline Header) via `flutter-implementer`.
-- [x] **State 3 & 4**: Run `flutter-reviewer` (`32/32` tests passing, `0` analyze issues) and `flutter-release-engineer` + deploy and verify live on **OPPO Reno10 5G (`CPH2531` · `SSUS9P9DS4DIV8RC`)**.
+- [x] **State 3 & 4**: Run `flutter-reviewer` (`32/32` tests passing, `0` analyze issues) and `flutter-release-engineer` + deploy and verify live on **physical Android device**.
 - [x] **Phase 2 UX/UI & ADK Telemetry Refinement**:
   - [x] Remove suggestion bubbles (`AdkPromptSuggestionsBar`) above the main text input in **Squad Mission**.
   - [x] Hide tool execution cards (`transfer_to_agent`, `calculate_budget_math`, `save_trip_plan`) from **Squad Mission** chat and surface them in **Pipeline & State** and **ADK Studio**.
@@ -85,7 +85,7 @@ Build **App 5 (`apps/adk_pocket_squad`)**, a production-grade, 100% on-device Mu
   - [x] Add **Final Result Dossier (`TripFinalResultSheet`)** in **Trips Vault** so users can inspect the complete final concierge brief, full day-by-day itinerary, budget audit, and checklist.
   - [x] Replace raw Markdown text in chat bubbles and dossiers with `FormattedAgentMessageView` (stripping internal `###` agent headers and rendering clean headings, bullets, and bold spans without raw `**`/`###` syntax).
   - [x] Extract Clean Architecture Domain Use Cases (`EvaluateTripIntakeUseCase`, `CalculateTripBudgetUseCase`, `SaveTripPlanUseCase` in `lib/domain/use_cases/`), enforce Day-by-Day (`Día 1..N` / `Day 1..N`) itinerary output in `ScoutAgent` (`maxOutputTokens: 550`), and split multi-agent responses into 3 separate specialist cards in **Squad Mission**.
-- [x] **State 5**: Finalize `PLAN.md`, deploy updated APK to **OPPO Reno10 5G (`SSUS9P9DS4DIV8RC`)**, and update `context/memory/`.
+- [x] **State 5**: Finalize `PLAN.md`, deploy updated APK to **physical Android device **, and update `context/memory/`.
 
 
 

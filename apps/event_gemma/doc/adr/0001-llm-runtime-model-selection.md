@@ -122,7 +122,7 @@ explicitly unverified rather than silently skipped.
   package's own example app), which is intentional: PLAN.md's non-goals
   exclude multi-model support.
 - If on-device profiling shows Gemma3-1B-IT's latency/memory profile is
-  unacceptable on the target test device (adb id `SSUS9P9DS4DIV8RC`), the
+  unacceptable on the target test device , the
   next fallback in this same family is `Gemma3-270M` traded for
   significantly weaker open-ended QA quality — that tradeoff would need a
   new ADR, not a silent swap.
