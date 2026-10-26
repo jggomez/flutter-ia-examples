@@ -18,15 +18,12 @@ A browsable conference-agenda guide with an on-device **Gemma 3 1B** chat assist
 
 ---
 
-## Core AI & Flutter Libraries
+## Core On-Device AI Libraries
 
-| Library | Version | Role in Event Gemma |
-| :--- | :--- | :--- |
-| [**`flutter_edge_ai`**](https://pub.dev/packages/flutter_edge_ai) | `^2.5.1` | Core Flutter Edge AI SDK for on-device LLM session and generation management. |
-| [**`flutter_edge_ai_litertlm`**](https://pub.dev/packages/flutter_edge_ai_litertlm) | `^1.17.0` | Native LiteRT-LM runtime bindings running `Gemma3-1B-IT` (`dynamic_int4`, `~529 MB`). |
-| [**`flutter_riverpod`**](https://pub.dev/packages/flutter_riverpod) | `^3.4.3` | Reactive `Notifier` state management and single DI composition root. |
-| [**`hive`**](https://pub.dev/packages/hive) & [**`hive_flutter`**](https://pub.dev/packages/hive_flutter) | `^2.2.3` / `^1.1.0` | Local persistence for offline chat history and pre-computed session citations. |
-| [**`http`**](https://pub.dev/packages/http) & [**`path_provider`**](https://pub.dev/packages/path_provider) | `^1.2.2` / `^2.1.6` | Multi-hop streamed `.litertlm` model download with CDN auth stripping and sandboxed storage. |
+| Library | Role in Event Gemma |
+| :--- | :--- |
+| [**`flutter_edge_ai`**](https://pub.dev/packages/flutter_edge_ai) | Core Flutter Edge AI SDK for on-device LLM session and generation management. |
+| [**`flutter_edge_ai_litertlm`**](https://pub.dev/packages/flutter_edge_ai_litertlm) | Native LiteRT-LM runtime bindings running `Gemma3-1B-IT` (`dynamic_int4`, `~529 MB`). |
 
 ---
 

@@ -21,14 +21,13 @@ on a physical Android device.
 
 ## Core AI, ADK, GenUI & A2UI Libraries
 
-| Library | Version | Layer | Role in Snap & Sell |
-| :--- | :--- | :--- | :--- |
-| [**`google-adk`**](https://google.github.io/adk-docs/) | `>=2.12.0` | Python Backend (`agent/`) | Agent orchestration with `gemini-3.8-flash` on Vertex AI, deterministic tools, and OpenTelemetry/BigQuery telemetry. |
-| [**`a2ui-agent-sdk`**](https://pypi.org/project/a2ui-agent-sdk/) | `>=0.9.0` | Python Backend (`agent/`) | Server-side A2UI v0.9 JSON Schema validation (`A2uiRequestProcessor`) against `snap_sell_catalog.json`. |
-| [**`a2a-sdk`**](https://pypi.org/project/a2a-sdk/) & [**`fastapi`**](https://fastapi.tiangolo.com/) | `>=1.0` / `>=0.115.8` | Python Backend (`agent/`) | JSON-RPC + SSE Agent-to-Agent (`/a2a/app`) multimodal server transport on Cloud Run. |
-| [**`genui`**](https://pub.dev/packages/genui) | `^0.10.4` | Flutter Client (`mobile/`) | Dynamic A2UI surface rendering (`SurfaceController`, `Surface`, reactive `DataModel`, custom catalog items). |
-| [**`genui_a2a`**](https://pub.dev/packages/genui_a2a) & [**`a2ui_core`**](https://pub.dev/packages/a2ui_core) | `^0.10.1` / `v0.9` | Flutter Client (`mobile/`) | A2A streaming client, `FilePart` image upload, and A2UI v0.9 protocol primitives. |
-| [**`flutter_riverpod`**](https://pub.dev/packages/flutter_riverpod) & [**`image_picker`**](https://pub.dev/packages/image_picker) | `^3.4.3` / `^1.2.4` | Flutter Client (`mobile/`) | State management, single DI root, and camera/gallery photo capture. |
+| Library | Layer | Role in Snap & Sell |
+| :--- | :--- | :--- |
+| [**`google-adk`**](https://google.github.io/adk-docs/) | Python Backend (`agent/`) | Agent orchestration with `gemini-3.8-flash` on Vertex AI, deterministic tools, and OpenTelemetry/BigQuery telemetry. |
+| [**`a2ui-agent-sdk`**](https://pypi.org/project/a2ui-agent-sdk/) | Python Backend (`agent/`) | Server-side A2UI v0.9 JSON Schema validation (`A2uiRequestProcessor`) against `snap_sell_catalog.json`. |
+| [**`a2a-sdk`**](https://pypi.org/project/a2a-sdk/) | Python Backend (`agent/`) | JSON-RPC + SSE Agent-to-Agent (`/a2a/app`) multimodal server transport on Cloud Run. |
+| [**`genui`**](https://pub.dev/packages/genui) | Flutter Client (`mobile/`) | Dynamic A2UI surface rendering (`SurfaceController`, `Surface`, reactive `DataModel`, custom catalog items). |
+| [**`genui_a2a`**](https://pub.dev/packages/genui_a2a) & [**`a2ui_core`**](https://pub.dev/packages/a2ui_core) | Flutter Client (`mobile/`) | A2A streaming client, `FilePart` image upload, and A2UI v0.9 protocol primitives. |
 
 ---
 

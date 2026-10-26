@@ -15,17 +15,15 @@ chat with grounded conceptual summaries, cross-lingual Q&A, and `[Doc, p. N]` ci
 
 ---
 
-## Core AI, Vector RAG & Flutter Libraries
+## Core AI & Vector RAG Libraries
 
-| Library | Version | Role in StudyGemma |
-| :--- | :--- | :--- |
-| [**`flutter_edge_ai`**](https://pub.dev/packages/flutter_edge_ai) | `^2.5.1` | Core Flutter Edge AI SDK unifying on-device LLM inference and model lifecycle management. |
-| [**`flutter_edge_ai_litertlm`**](https://pub.dev/packages/flutter_edge_ai_litertlm) | `^1.17.0` | Native Google AI Edge LiteRT-LM bindings running **Gemma 4 E2B IT** (`2.58 GB`) on CPU `mmap`. |
-| [**`flutter_edge_ai_embeddings`**](https://pub.dev/packages/flutter_edge_ai_embeddings) | `^2.3.2` | On-device 768-dim dense vector embeddings via **EmbeddingGemma 2 (Embeddings 2.0, 270M)**. |
-| [**`flutter_edge_ai_rag`**](https://pub.dev/packages/flutter_edge_ai_rag) | `^1.1.2` | On-device RAG orchestration and structure-aware chunking pipeline. |
-| [**`flutter_edge_ai_sqlite`**](https://pub.dev/packages/flutter_edge_ai_sqlite) | `^2.1.1` | Native SQLite + `sqlite-vec` (`vec0` virtual table) for offline Top-K cosine similarity search. |
-| [**`syncfusion_flutter_pdf`**](https://pub.dev/packages/syncfusion_flutter_pdf) & [**`file_picker`**](https://pub.dev/packages/file_picker) | `^31.1.19` / `^10.3.3` | Background isolate (`Isolate.run`) page-by-page PDF text extraction and native file picker. |
-| [**`flutter_riverpod`**](https://pub.dev/packages/flutter_riverpod) & [**`hive`**](https://pub.dev/packages/hive) | `^3.4.3` / `^2.2.3` | Reactive `Notifier` ViewModels, single DI root, and local document/chat history storage. |
+| Library | Role in StudyGemma |
+| :--- | :--- |
+| [**`flutter_edge_ai`**](https://pub.dev/packages/flutter_edge_ai) | Core Flutter Edge AI SDK unifying on-device LLM inference and model lifecycle management. |
+| [**`flutter_edge_ai_litertlm`**](https://pub.dev/packages/flutter_edge_ai_litertlm) | Native Google AI Edge LiteRT-LM bindings running **Gemma 4 E2B IT** (`2.58 GB`) on CPU `mmap`. |
+| [**`flutter_edge_ai_embeddings`**](https://pub.dev/packages/flutter_edge_ai_embeddings) | On-device 768-dim dense vector embeddings via **EmbeddingGemma 2 (Embeddings 2.0, 270M)**. |
+| [**`flutter_edge_ai_rag`**](https://pub.dev/packages/flutter_edge_ai_rag) | On-device RAG orchestration and structure-aware chunking pipeline. |
+| [**`flutter_edge_ai_sqlite`**](https://pub.dev/packages/flutter_edge_ai_sqlite) | Native SQLite + `sqlite-vec` (`vec0` virtual table) for offline Top-K cosine similarity search. |
 
 ---
 
