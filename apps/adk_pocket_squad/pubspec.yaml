@@ -1,0 +1,30 @@
+name: adk_pocket_squad
+description: "Pocket Squad — 100% On-Device Multi-Agent Travel & Budget Concierge powered by flutter_adk and Gemma 4 E2B IT (LiteRT-LM)."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.13.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  flutter_adk: ^2026.10.23
+  adk_dart: ^2026.10.23
+  flutter_edge_ai: ^2.5.1
+  flutter_edge_ai_litertlm: ^1.17.0
+  flutter_riverpod: ^3.0.3
+  http: ^1.2.2
+  path_provider: ^2.1.5
+  shared_preferences: ^2.3.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  path_provider_platform_interface: ^2.1.2
+  plugin_platform_interface: ^2.1.8
+
+flutter:
+  uses-material-design: true

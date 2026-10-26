@@ -103,6 +103,42 @@ MediaTek Dimensity 7050, 8 GB RAM, Arm Mali-G68 MC4 GPU, Impeller Vulkan 120Hz)*
 | :---: | :---: | :---: |
 | <img src="images/rag_study/04-library-indexed-document.jpeg" alt="Indexed Document Catalog" width="240" /> | <img src="images/rag_study/05-chat-summary-en.jpeg" alt="Grounded Summary in English" width="240" /> | <img src="images/rag_study/06-chat-crosslingual-es-citations.jpeg" alt="Cross-Lingual Spanish Q&A" width="240" /> |
 
+### `apps/adk_pocket_squad` — Pocket Squad (100% On-Device Multi-Agent Travel & Budget Concierge with `flutter_adk` + Gemma 4 E2B IT)
+
+A 100% offline, on-device **Hierarchical + Sequential Multi-Agent Travel & Budget Concierge**
+built with Flutter, **Google's Agent Development Kit (`flutter_adk`)**, and a single shared
+**Gemma 4 E2B IT (`gemma-4-E2B-it.litertlm`, ~2.58 GB)** runtime via `flutter_edge_ai_litertlm` (LiteRT-LM).
+
+A conversational **CoordinatorAgent** conducts multi-turn intake to capture Destination,
+Duration (days), and Budget. Once complete, it executes ADK's built-in `transfer_to_agent`
+to launch a specialized 3-agent pipeline:
+1. **ScoutAgent**: Drafts day-by-day morning/afternoon/evening itineraries using 100% native LLM world knowledge (**0 tools**).
+2. **BudgetAuditorAgent**: Invokes `calculate_budget_math` (**FunctionTool**) for deterministic multi-day arithmetic, 10% contingency reserves, and offline currency conversion (`COP`, `USD`, `EUR`, `JPY`, `GBP`, `MXN`).
+3. **ConciergeAgent**: Invokes `save_trip_plan` (**FunctionTool**) to persist the dossier to the local Saved Trips Vault and provides local gastronomy, transit tips, and packing checklists.
+
+See [`apps/adk_pocket_squad/README.md`](apps/adk_pocket_squad/README.md).
+
+Status: architecture and Clean Architecture implementation complete (**36/36 unit, multi-agent pipeline, and widget tests passing**; `flutter analyze` clean with 0 issues).
+Verified and benchmarked on physical Android hardware: **OPPO Reno10 5G (`CPH2531`, Android 15 / API 35,
+MediaTek Dimensity 7050, 8 GB RAM, Arm Mali-G68 MC4 GPU, Impeller Vulkan 120Hz)** with ~0.8 GB resident working set via CPU `mmap`.
+
+```mermaid
+flowchart LR
+    User["Traveler Prompt"] --> Coord["0. CoordinatorAgent\n(Conversational Intake)"]
+    Coord -->|"transfer_to_agent"| Scout["1. ScoutAgent\n(World Knowledge Itinerary)"]
+    Scout -->|"session.state"| Auditor["2. BudgetAuditorAgent\n(calculate_budget_math)"]
+    Auditor -->|"session.state"| Concierge["3. ConciergeAgent\n(save_trip_plan -> Vault)"]
+    Concierge --> UI["Specialist Cards & Trips Vault"]
+```
+
+| Squad Mission Ready & Presets | Conversational Multi-Turn Intake | Coordinator Handoff & Stepper | ScoutAgent Day 1 Itinerary |
+| :---: | :---: | :---: | :---: |
+| <img src="images/adk_pocket/01-squad-mission-ready.jpeg" alt="Squad Mission Ready" width="240" /> | <img src="images/adk_pocket/08-coordinator-conversational-intake.jpeg" alt="Conversational Intake" width="240" /> | <img src="images/adk_pocket/02-coordinator-handoff-streaming.jpeg" alt="Coordinator Handoff" width="240" /> | <img src="images/adk_pocket/03-scout-agent-day1-itinerary.jpeg" alt="ScoutAgent Day 1 Itinerary" width="240" /> |
+
+| Sequential Handoff to Auditor | BudgetAuditor Mathematical Audit | Concierge Gastronomy & Vault | Pipeline Inspector & Tool Calls |
+| :---: | :---: | :---: | :---: |
+| <img src="images/adk_pocket/04-scout-day3-and-budget-auditor.jpeg" alt="Handoff to Auditor" width="240" /> | <img src="images/adk_pocket/05-budget-auditor-math-breakdown.jpeg" alt="Budget Auditor Breakdown" width="240" /> | <img src="images/adk_pocket/06-concierge-gastronomy-and-tips.jpeg" alt="Concierge Gastronomy and Tips" width="240" /> | <img src="images/adk_pocket/07-pipeline-state-and-tool-calls.jpeg" alt="Pipeline Inspector and Tool Calls" width="240" /> |
+
 ## Notebooks
 
 [`notebooks/`](notebooks/) contains the training notebook for the
@@ -119,7 +155,8 @@ flutter-ai/
 │   ├── rsp_live/            # RPS Live on-device mobile screenshots
 │   ├── event_gemma/         # Event Gemma on-device mobile screenshots
 │   ├── a2ui/                # Snap & Sell A2UI interaction diagram & mobile screenshots
-│   └── rag_study/           # StudyGemma on-device mobile screenshots & demo video
+│   ├── rag_study/           # StudyGemma on-device mobile screenshots & demo video
+│   └── adk_pocket/          # Pocket Squad on-device multi-agent mobile screenshots
 ├── apps/
 │   ├── rps_live/            # app 1: on-device LiteRT gesture classifier game
 │   ├── event_gemma/         # app 2: on-device Gemma 3 1B RAG conference assistant
@@ -128,7 +165,8 @@ flutter-ai/
 │   │   ├── mobile/          # Flutter GenUI mobile client
 │   │   ├── contracts/       # shared A2UI v0.9 JSON Schema catalog & few-shot examples
 │   │   └── doc/adr/         # Architecture Decision Records (0001..0006)
-│   └── rag_study_gemma/     # app 4: on-device PDF Vector RAG study companion (EmbeddingGemma 2 + sqlite-vec + Gemma 4 E2B IT)
+│   ├── rag_study_gemma/     # app 4: on-device PDF Vector RAG study companion (EmbeddingGemma 2 + sqlite-vec + Gemma 4 E2B IT)
+│   └── adk_pocket_squad/    # app 5: 100% on-device multi-agent travel concierge (flutter_adk + Gemma 4 E2B IT)
 ├── context/memory/          # LLM Wiki persistent project memory & session logs
 ├── .agents/skills/          # official Flutter/Dart & Google Cloud agent skills
 └── .claude/plugins/         # senior-dev & senior-dev-flutter orchestration plugins
@@ -151,9 +189,12 @@ cd apps/a2ui_snap_sell/mobile && flutter pub get && flutter analyze && flutter t
 
 # App 4: StudyGemma (On-Device PDF Vector RAG Study Companion)
 cd apps/rag_study_gemma && flutter pub get && flutter analyze && flutter test
+
+# App 5: Pocket Squad (100% On-Device Multi-Agent Travel & Budget Concierge)
+cd apps/adk_pocket_squad && flutter pub get && flutter analyze && flutter test
 ```
 
 See each app's own README for how to run it (including, for
-`event_gemma` and `rag_study_gemma`, the optional HuggingFace token setup and
-automatic public mirror fallback, and for `a2ui_snap_sell`, the local ADK server
+`event_gemma`, `rag_study_gemma`, and `adk_pocket_squad`, the optional HuggingFace
+token setup and automatic public mirror fallback, and for `a2ui_snap_sell`, the local ADK server
 or Cloud Run configuration).
