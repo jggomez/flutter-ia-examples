@@ -9,7 +9,7 @@ flutter-ai/
 ├── notebooks/                 # RPS CNN training (Kaggle drgfreeman/rockpaperscissors)
 ├── apps/rps_live/             # App 1 — live-camera RPS classifier game (LiteRT)
 ├── apps/event_gemma/          # App 2 — offline conference wiki + on-device Gemma 3 1B RAG chat
-├── apps/a2ui_snap_sell/       # App 3 — "Snap & Sell" dynamic A2UI v0.9 + Flutter GenUI marketplace app (agent/ + mobile/ + contracts/)
+├── apps/a2ui/                # App 3 — "Snap & Sell" generative UI on A2UI 1.0: snap_sell_express (Gemini writes Express) + snap_sell_jev (Jev decides, code builds)
 ├── apps/rag_study_gemma/      # App 4 — "StudyGemma" offline PDF Vector RAG study companion (EmbeddingGemma 2 + SQLite vec0 + Gemma 4 E2B IT)
 ├── apps/adk_pocket_squad/     # App 5 — "Pocket Squad" 100% on-device Multi-Agent Travel & Budget Concierge (flutter_adk + Gemma 4 E2B IT 2.58 GB)
 ├── docs/a2ui/                 # Reference docs for ADK A2UI & Flutter GenUI
@@ -41,7 +41,7 @@ flutter-ai/
 - UI/UX Design System: Modern Material 3 tech aesthetic (`lib/ui/core/theme/`): Deep Indigo/Violet primary, luminous Cyan/Teal accents, high-contrast surface containers, Day filter chips (`Day 1` / `Day 2`) + rich talk cards with initials avatars in `agenda`, hero header + speaker profile + "Ask AI" CTA in `talk_detail`, asymmetric bubbles + prompt suggestion pills + pulsing 3-dot generation indicator in `chat`, and hero onboarding card + live Wi-Fi meter in `setup` (ADR 0006). Android-first target.
 
 
-## apps/a2ui_snap_sell
+## apps/a2ui/snap_sell
 - **Concept ("Snap & Sell")**: User snaps/picks a photo of an item to sell (`car` ICE/EV, `motorcycle`, `phone`) on a single fixed entry screen (`EntryScreen`). All subsequent screens (`selling_step_1_detected`, `selling_step_2_followup`, `selling_step_3_preview`, `selling_step_4_published`, `selling_unsupported`) are dynamically generated as A2UI `v0.9` surfaces by a Python ADK agent.
 - **Shared Contract (`contracts/`)**: `snap_sell_catalog.json` (`https://snap-sell.devhack.dev/a2ui/v0.9/snap_sell_catalog.json`: 12 `BasicCatalog` components + 5 custom components: `StepProgress`, `DetectedItemCard`, `PhotoRequest`, `PriceRange`, `ListingPreview`) and 5 schema-validated JSON examples (`contracts/examples/0.9/01..05`).
 - **Python Agent (`agent/`)**: Scaffolded via `agents-cli scaffold create snap-sell-agent --agent adk --deployment-target cloud_run --prototype` (`google-agents-cli ~= 1.11.0`, `google-adk >= 2.12.0`, `a2ui-agent-sdk == 0.9.0`). Preserves `MODEL = "gemini-3.8-flash"`, `root_agent`, `app = App(root_agent=root_agent, name="app")`, 4 deterministic ADK tools in `app/tools.py` (`record_detected_item`, `validate_listing_fields`, `extract_odometer_reading`, `estimate_price_and_build_preview`), and built-in `A2aAgentExecutor(force_new_version=False)` with custom A2A/A2UI part converters in `app/app_utils/a2a.py` (ADR 0001, ADR 0002, ADR 0005, ADR 0006).

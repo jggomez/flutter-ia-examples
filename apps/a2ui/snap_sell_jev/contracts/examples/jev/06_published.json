@@ -1,0 +1,86 @@
+[
+  {
+    "version": "1.0",
+    "createSurface": {
+      "surfaceId": "selling_step_4_published",
+      "catalogId": "https://snap-sell.devhack.dev/a2ui/v1.0/snap_sell_catalog.json",
+      "sendDataModel": true,
+      "components": [
+        {
+          "id": "root",
+          "component": "Column",
+          "justify": "start",
+          "align": "stretch",
+          "children": [
+            "step_progress",
+            "published_card"
+          ]
+        },
+        {
+          "id": "step_progress",
+          "component": "StepProgress",
+          "currentStep": 4,
+          "totalSteps": 4,
+          "stepLabels": [
+            "Detected",
+            "Follow-up",
+            "Preview",
+            "Published"
+          ],
+          "subtitle": "Your listing is live."
+        },
+        {
+          "id": "published_card",
+          "component": "Card",
+          "child": "published_column"
+        },
+        {
+          "id": "published_column",
+          "component": "Column",
+          "justify": "center",
+          "align": "center",
+          "children": [
+            "published_icon",
+            "published_title",
+            "published_summary",
+            "new_listing_btn"
+          ]
+        },
+        {
+          "id": "published_icon",
+          "component": "Icon",
+          "name": "check"
+        },
+        {
+          "id": "published_title",
+          "component": "Text",
+          "variant": "body",
+          "text": "### Listing Published"
+        },
+        {
+          "id": "published_summary",
+          "component": "Text",
+          "variant": "body",
+          "text": "2021 Mazda CX-30 — 23400 USD"
+        },
+        {
+          "id": "new_listing_btn_label",
+          "component": "Text",
+          "text": "Sell Another Item"
+        },
+        {
+          "id": "new_listing_btn",
+          "component": "Button",
+          "variant": "primary",
+          "child": "new_listing_btn_label",
+          "action": {
+            "event": {
+              "name": "start_new_listing",
+              "context": {}
+            }
+          }
+        }
+      ]
+    }
+  }
+]

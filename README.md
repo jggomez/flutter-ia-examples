@@ -45,9 +45,24 @@ StudyGemma is a private, offline study assistant that lets students and research
 
 ### Snap & Sell — Generative UI Marketplace Assistant
 
-Snap & Sell reimagines marketplace listings by replacing static multi-page forms with AI-generated interfaces. The user simply takes a photo of an item to sell—such as a car, motorcycle, or phone—and a remote ADK agent powered by Gemini analyzes the image and dynamically streams the exact UI screens needed for that specific item, requesting follow-up photos like an odometer reading when relevant, suggesting a fair market price range, and assembling a ready-to-publish listing.
+Most apps ship every screen ahead of time. Snap & Sell ships only a camera: you photograph a car, motorcycle or phone, and an AI agent decides which questions to ask and builds each next screen for that item, rendered natively in Flutter through [A2UI](https://a2ui.org).
 
-[Explore the Snap & Sell Documentation →](apps/a2ui_snap_sell/README.md)
+```mermaid
+flowchart LR
+    U["📷 Photo"] --> A{{"🤖 Agent decides<br/>what to ask"}}
+    A --> S["🧩 Screen for this item"]
+    S --> R["📱 Native Flutter UI"]
+    R -- "answers" --> A
+```
+
+It is built two ways so you can compare them on the same photo:
+
+| | Who decides | Who writes the screen | Per photo |
+| --- | --- | --- | --- |
+| [**Snap & Sell Express**](apps/a2ui/snap_sell_express/README.md) | Gemini | Gemini, in A2UI Express | ~5–9 s |
+| [**Snap & Sell · Jev**](apps/a2ui/snap_sell_jev/README.md) | [Jev](https://docs.typesafe.ai), with a probability per choice | Code | ~2–3 s |
+
+[Compare the two variants →](apps/a2ui/README.md)
 
 | Item Recognition Surface | Conditional Odometer Request | Dynamic Price Range | Final Listing Confirmation |
 | :---: | :---: | :---: | :---: |
@@ -87,14 +102,15 @@ These applications are built on top of Google's mobile AI, Multi-Agent, and Gene
 | :--- | :--- | :--- | :--- |
 | [**`flutter_adk`**](https://pub.dev/packages/flutter_adk) | Multi-Agent UI & Orchestration | `adk_pocket_squad` | Provides the multi-agent chat controller, live workflow stepper, shared state inspector, tool telemetry cards, and embedded ADK Studio. |
 | [**`adk_dart`**](https://pub.dev/packages/adk_dart) | Multi-Agent Core Runtime | `adk_pocket_squad` | Powers on-device hierarchical and sequential agents, deterministic function tools, agent handoffs, and local or LAN model bridges. |
-| [**`google-adk`**](https://google.github.io/adk-docs/) | Cloud Agent Orchestration | `a2ui_snap_sell` | Orchestrates multimodal Gemini agents on Vertex AI and Cloud Run. |
+| [**`google-adk`**](https://google.github.io/adk-docs/) | Cloud Agent Orchestration | `snap_sell_express`, `snap_sell_jev` | Orchestrates multimodal Gemini agents on Vertex AI and Cloud Run. |
 | [**`flutter_edge_ai`**](https://pub.dev/packages/flutter_edge_ai) | On-Device Edge AI Core | `adk_pocket_squad`, `rag_study_gemma`, `event_gemma` | Unified Flutter SDK for managing local language model sessions and streaming responses on mobile. |
 | [**`flutter_edge_ai_litertlm`**](https://pub.dev/packages/flutter_edge_ai_litertlm) | On-Device LLM Runtime | `adk_pocket_squad`, `rag_study_gemma`, `event_gemma` | Runs Gemma 4 and Gemma 3 models directly on the device via Google AI Edge LiteRT-LM. |
 | [**`flutter_edge_ai_embeddings`**](https://pub.dev/packages/flutter_edge_ai_embeddings) | On-Device Text Embeddings | `rag_study_gemma` | Generates dense semantic vector embeddings locally using EmbeddingGemma 2. |
 | [**`flutter_edge_ai_rag`**](https://pub.dev/packages/flutter_edge_ai_rag) | On-Device RAG Pipeline | `rag_study_gemma` | Handles document chunking, context assembly, and grounded retrieval-augmented generation. |
 | [**`flutter_edge_ai_sqlite`**](https://pub.dev/packages/flutter_edge_ai_sqlite) | Local Vector Database | `rag_study_gemma` | Stores and queries vector embeddings offline using SQLite and `sqlite-vec`. |
-| [**`genui`**](https://pub.dev/packages/genui) & [**`genui_a2a`**](https://pub.dev/packages/genui_a2a) | Generative UI & Agent Streaming | `a2ui_snap_sell` | Renders dynamic AI-generated Flutter widget surfaces streamed over the Agent-to-Agent protocol. |
-| [**`a2ui_core`**](https://pub.dev/packages/a2ui_core) & [**`a2ui-agent-sdk`**](https://pypi.org/project/a2ui-agent-sdk/) | Agent-to-UI Protocol | `a2ui_snap_sell` | Defines the shared component catalog and schema contract between the AI agent and the Flutter client. |
+| [**`a2ui_flutter`**](https://pub.dev/packages/a2ui_flutter) | Generative UI (A2UI 1.0) | `snap_sell_express`, `snap_sell_jev` | Renders A2UI v1.0 surfaces natively and routes actions, errors and agent function calls back to the agent. |
+| [**`a2ui_core`**](https://pub.dev/packages/a2ui_core) & [**`a2ui-agent-sdk`**](https://pypi.org/project/a2ui-agent-sdk/) | Agent-to-UI Protocol | `snap_sell_express`, `snap_sell_jev` | Defines the shared component catalog and schema contract between the AI agent and the Flutter client. |
+| [**`typesafe-sdk`**](https://pypi.org/project/typesafe-sdk/) (Jev) | Decision Model for UI | `snap_sell_jev` | Answers yes/no, choice and score questions about photos and form data with calibrated probabilities; code turns them into UI decisions. |
 | [**`flutter_litert`**](https://pub.dev/packages/flutter_litert) | On-Device Computer Vision | `rps_live` | Executes custom TensorFlow Lite / LiteRT neural networks on mobile hardware accelerators. |
 
 ### Official References
@@ -102,7 +118,8 @@ These applications are built on top of Google's mobile AI, Multi-Agent, and Gene
 - [Google Agent Development Kit Documentation](https://google.github.io/adk-docs/) · [`flutter_adk`](https://pub.dev/packages/flutter_adk) · [`adk_dart`](https://pub.dev/packages/adk_dart)
 - [Google AI Edge & LiteRT Overview](https://ai.google.dev/edge/litert) · [`flutter_edge_ai`](https://pub.dev/packages/flutter_edge_ai) · [`flutter_litert`](https://pub.dev/packages/flutter_litert)
 - [Google Gemma Open Models](https://ai.google.dev/gemma)
-- [Flutter GenUI Package](https://pub.dev/packages/genui) · [`genui_a2a`](https://pub.dev/packages/genui_a2a) · [`a2ui-agent-sdk`](https://pypi.org/project/a2ui-agent-sdk/)
+- [`a2ui-agent-sdk`](https://pypi.org/project/a2ui-agent-sdk/)
+- [A2UI 1.0 for Flutter](https://flutter.dev/blog/a2ui-launch) · [`a2ui_flutter`](https://pub.dev/packages/a2ui_flutter) · [A2UI Express](https://a2ui.org/concepts/inference-formats/)
 
 ---
 
@@ -111,7 +128,7 @@ These applications are built on top of Google's mobile AI, Multi-Agent, and Gene
 Each project under `apps/` is a standalone Flutter application and can be launched directly from its folder:
 
 ```bash
-cd apps/adk_pocket_squad   # or rps_live, event_gemma, rag_study_gemma, a2ui_snap_sell/mobile
+cd apps/adk_pocket_squad   # or rps_live, event_gemma, rag_study_gemma, a2ui/snap_sell_express/mobile, a2ui/snap_sell_jev/mobile
 flutter pub get
 flutter run
 ```

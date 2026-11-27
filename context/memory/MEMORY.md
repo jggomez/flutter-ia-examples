@@ -18,7 +18,8 @@
   - `apps/rag_study_gemma` — `flutter analyze` clean (0 issues) ✅, `flutter test` 78/78 ✅, live on-device run & benchmarks on physical Android device ✅
   - `apps/event_gemma` — `flutter analyze` clean (0 issues) ✅, `flutter test` 147/147 ✅
   - `apps/rps_live` — `flutter analyze` clean ✅, `flutter test` 77/77 ✅
-  - `apps/a2ui_snap_sell` — `agent/` (`uv run pytest` 20/20 ✅, Cloud Run live ✅), `mobile/` (`flutter analyze` clean ✅, `flutter test` 43/43 ✅)
+  - `apps/a2ui/snap_sell_express` — `agent/` (`uv run pytest` 36/36 ✅, Cloud Run live ✅), `mobile/` (`dart analyze` clean ✅, `flutter test` 46/46 ✅)
+  - `apps/a2ui/snap_sell_jev` — `agent/` (`uv run pytest` 74/74 ✅, Cloud Run live ✅), `mobile/` (`dart analyze` clean ✅, `flutter test` 57/57 ✅)
 - **No root `PLAN.md`**; each app owns `apps/<app>/PLAN.md`.
 
 ### Next steps (priority order)
@@ -26,12 +27,12 @@
 
 ## 2. Key Architecture & Conventions (summary)
 - Independent apps, no shared package; identical Flutter layering `domain / data / ui` → [architecture.md](./architecture.md)
-- Riverpod 3.x manual providers, `.autoDispose` VMs (exceptions: `event_gemma` `chatViewModelProvider`, `a2ui_snap_sell` selling session VM, `rag_study_gemma` `studyChatViewModelProvider`, `adk_pocket_squad` `pocketSquadViewModelProvider`).
+- Riverpod 3.x manual providers, `.autoDispose` VMs (exceptions: `event_gemma` `chatViewModelProvider`, `snap_sell_*` selling session VM, `rag_study_gemma` `studyChatViewModelProvider`, `adk_pocket_squad` `pocketSquadViewModelProvider`).
 - `adk_pocket_squad`: Root `coordinator_agent` (`LlmAgent` conversational intake + `transfer_to_agent`) → `SequentialAgent` (`scout_agent` -> `budget_auditor_agent` -> `concierge_agent`) sharing one `LiteRtChatDriver` (`Gemma 4 E2B IT` 2.58 GB on CPU `mmap`) + optional `LiteLlm` LAN Ollama.
 - `rag_study_gemma`: Dual-model LiteRT-LM (`Gemma 4 E2B IT`, `ModelType.gemma4`, `PreferredBackend.cpu`, `maxTokens: 2048`) + Embeddings 2.0 (`EmbeddingGemma 2` 768-dim on CPU backend) + `SqliteVectorStoreProvider` (`vec0`) + `Isolate.run()` pure-Dart PDF extraction (`syncfusion_flutter_pdf`).
 - TDD with fakes; native/transport wrappers isolated in `data/services/`; regression tests for engine/session lifecycles.
 - Secrets/config via `--dart-define-from-file`, `**/*.local.json` gitignored → [conventions.md](./conventions.md)
-- ADRs: `apps/rps_live/doc/adr/0001-0003`, `apps/event_gemma/doc/adr/0001-0007`, `apps/a2ui_snap_sell/doc/adr/0001-0006`, `apps/rag_study_gemma/doc/adr/0001-0005`, `apps/adk_pocket_squad/doc/adr/0001-0003`.
+- ADRs: `apps/rps_live/doc/adr/0001-0003`, `apps/event_gemma/doc/adr/0001-0007`, `apps/a2ui/snap_sell_express/doc/adr/0001-0007`, `apps/a2ui/snap_sell_jev/doc/adr/0001-0008`, `apps/rag_study_gemma/doc/adr/0001-0005`, `apps/adk_pocket_squad/doc/adr/0001-0003`.
 
 ## 3. Recent Daily Logs
 - [2026-10-25.md](./log/2026-10-25.md)

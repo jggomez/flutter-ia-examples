@@ -1,0 +1,266 @@
+[
+  {
+    "version": "1.0",
+    "createSurface": {
+      "surfaceId": "selling_step_1_detected",
+      "catalogId": "https://snap-sell.devhack.dev/a2ui/v1.0/snap_sell_catalog.json",
+      "sendDataModel": true,
+      "components": [
+        {
+          "id": "root",
+          "component": "Column",
+          "justify": "start",
+          "align": "stretch",
+          "children": [
+            "step_progress",
+            "detected_card",
+            "questions_card",
+            "continue_btn"
+          ]
+        },
+        {
+          "id": "step_progress",
+          "component": "StepProgress",
+          "currentStep": 1,
+          "totalSteps": 4,
+          "stepLabels": [
+            "Detected",
+            "Follow-up",
+            "Preview",
+            "Published"
+          ],
+          "subtitle": "Review the detected motorcycle and answer what the photo cannot show."
+        },
+        {
+          "id": "detected_card",
+          "component": "DetectedItemCard",
+          "category": "motorcycle",
+          "imageUrl": {
+            "@path": "/detected/imageUrl"
+          },
+          "confidence": 0.93,
+          "summary": {
+            "@path": "/detected/summary"
+          },
+          "fields": [
+            {
+              "key": "brand",
+              "label": "Brand",
+              "value": {
+                "@path": "/detected/brand"
+              },
+              "editable": true
+            },
+            {
+              "key": "model",
+              "label": "Model",
+              "value": {
+                "@path": "/detected/model"
+              },
+              "editable": true
+            },
+            {
+              "key": "year",
+              "label": "Year / Generation",
+              "value": {
+                "@path": "/detected/year"
+              },
+              "editable": true
+            },
+            {
+              "key": "color",
+              "label": "Color",
+              "value": {
+                "@path": "/detected/color"
+              },
+              "editable": true
+            }
+          ],
+          "isEv": false
+        },
+        {
+          "id": "questions_card",
+          "component": "Card",
+          "child": "questions_column"
+        },
+        {
+          "id": "questions_column",
+          "component": "Column",
+          "justify": "start",
+          "align": "stretch",
+          "children": [
+            "questions_heading",
+            "mileageKm_field",
+            "scan_odometer_btn",
+            "engineCc_field",
+            "modifications_field",
+            "chainCondition_field",
+            "includesHelmet_field",
+            "hasDamage_field"
+          ]
+        },
+        {
+          "id": "questions_heading",
+          "component": "Text",
+          "variant": "body",
+          "text": "### About your 2021 Mazda CX-30"
+        },
+        {
+          "id": "mileageKm_field",
+          "component": "TextField",
+          "label": "Mileage (km)",
+          "value": {
+            "@path": "/details/mileageKm"
+          },
+          "variant": "number"
+        },
+        {
+          "id": "scan_odometer_btn_label",
+          "component": "Text",
+          "text": "Or scan odometer photo"
+        },
+        {
+          "id": "scan_odometer_btn",
+          "component": "Button",
+          "variant": "borderless",
+          "child": "scan_odometer_btn_label",
+          "action": {
+            "event": {
+              "name": "request_odometer_scan",
+              "context": {
+                "category": "motorcycle"
+              }
+            }
+          }
+        },
+        {
+          "id": "engineCc_field",
+          "component": "TextField",
+          "label": "Engine displacement (cc)",
+          "value": {
+            "@path": "/details/engineCc"
+          },
+          "variant": "number"
+        },
+        {
+          "id": "modifications_field",
+          "component": "TextField",
+          "label": "Modifications (exhaust, suspension, wheels…)",
+          "value": {
+            "@path": "/details/modifications"
+          }
+        },
+        {
+          "id": "chainCondition_field",
+          "component": "ChoicePicker",
+          "label": "Chain & sprockets",
+          "variant": "mutuallyExclusive",
+          "displayStyle": "chips",
+          "options": [
+            {
+              "label": "New",
+              "value": "new"
+            },
+            {
+              "label": "Good",
+              "value": "good"
+            },
+            {
+              "label": "Needs replacement",
+              "value": "replace"
+            }
+          ],
+          "value": {
+            "@path": "/details/chainCondition"
+          }
+        },
+        {
+          "id": "includesHelmet_field",
+          "component": "CheckBox",
+          "label": "Helmet included",
+          "value": {
+            "@path": "/details/includesHelmet"
+          }
+        },
+        {
+          "id": "hasDamage_field",
+          "component": "CheckBox",
+          "label": "Has visible damage or known issues",
+          "value": {
+            "@path": "/details/hasDamage"
+          }
+        },
+        {
+          "id": "continue_btn_label",
+          "component": "Text",
+          "text": "Continue"
+        },
+        {
+          "id": "continue_btn",
+          "component": "Button",
+          "variant": "primary",
+          "child": "continue_btn_label",
+          "action": {
+            "event": {
+              "name": "submit_detected_details",
+              "context": {
+                "category": "motorcycle",
+                "brand": {
+                  "@path": "/detected/brand"
+                },
+                "model": {
+                  "@path": "/detected/model"
+                },
+                "year": {
+                  "@path": "/detected/year"
+                },
+                "color": {
+                  "@path": "/detected/color"
+                },
+                "mileageKm": {
+                  "@path": "/details/mileageKm"
+                },
+                "engineCc": {
+                  "@path": "/details/engineCc"
+                },
+                "modifications": {
+                  "@path": "/details/modifications"
+                },
+                "chainCondition": {
+                  "@path": "/details/chainCondition"
+                },
+                "includesHelmet": {
+                  "@path": "/details/includesHelmet"
+                },
+                "hasDamage": {
+                  "@path": "/details/hasDamage"
+                },
+                "isEv": false
+              }
+            }
+          }
+        }
+      ],
+      "dataModel": {
+        "detected": {
+          "imageUrl": "http://10.0.2.2:8000/uploads/demo_item.jpg",
+          "summary": "Clean SUV.",
+          "brand": "Mazda",
+          "model": "CX-30",
+          "year": "2021",
+          "color": "Soul Red"
+        },
+        "details": {
+          "mileageKm": "",
+          "engineCc": "",
+          "modifications": "",
+          "chainCondition": [
+            "good"
+          ],
+          "includesHelmet": false,
+          "hasDamage": false
+        }
+      }
+    }
+  }
+]
