@@ -1,0 +1,147 @@
+[
+  {
+    "version": "1.0",
+    "createSurface": {
+      "surfaceId": "selling_step_3_preview",
+      "catalogId": "https://snap-sell.devhack.dev/a2ui/v1.0/snap_sell_catalog.json",
+      "sendDataModel": true,
+      "components": [
+        {
+          "id": "root",
+          "component": "Column",
+          "justify": "start",
+          "align": "stretch",
+          "children": [
+            "step_progress",
+            "price_range_card",
+            "listing_preview_card"
+          ]
+        },
+        {
+          "id": "step_progress",
+          "component": "StepProgress",
+          "currentStep": 3,
+          "totalSteps": 4,
+          "stepLabels": [
+            "Detected",
+            "Follow-up",
+            "Preview",
+            "Published"
+          ],
+          "subtitle": "Review your generated listing and adjust the asking price before publishing."
+        },
+        {
+          "id": "price_range_card",
+          "component": "PriceRange",
+          "minPrice": 14700,
+          "suggestedPrice": 16200,
+          "maxPrice": 17400,
+          "selectedPrice": {
+            "@path": "/pricing/askingPrice"
+          },
+          "currency": "USD",
+          "rationale": {
+            "@path": "/pricing/rationale"
+          },
+          "feedback": {
+            "@call": "priceFeedback",
+            "args": {
+              "askingPrice": {
+                "@path": "/pricing/askingPrice"
+              },
+              "minPrice": 14700,
+              "suggestedPrice": 16200,
+              "maxPrice": 17400
+            }
+          }
+        },
+        {
+          "id": "listing_preview_card",
+          "component": "ListingPreview",
+          "title": {
+            "@path": "/preview/title"
+          },
+          "description": {
+            "@path": "/preview/description"
+          },
+          "category": "car",
+          "price": {
+            "@path": "/pricing/askingPrice"
+          },
+          "currency": "USD",
+          "imageUrls": [
+            "http://10.0.2.2:8000/uploads/demo_item.jpg"
+          ],
+          "specs": [
+            {
+              "label": "Year",
+              "value": "2021"
+            },
+            {
+              "label": "Mileage",
+              "value": "34,200 km"
+            },
+            {
+              "label": "Engine",
+              "value": "2,000 cc"
+            },
+            {
+              "label": "Owners",
+              "value": "1st Owner"
+            },
+            {
+              "label": "Papers",
+              "value": "Up to date"
+            }
+          ],
+          "missingChecklist": [
+            {
+              "item": "Main item photo uploaded",
+              "completed": true
+            },
+            {
+              "item": "Category-specific specifications verified",
+              "completed": true
+            },
+            {
+              "item": "Mileage verified",
+              "completed": true
+            },
+            {
+              "item": "Damage close-up photo attached",
+              "completed": false
+            }
+          ],
+          "publishAction": {
+            "event": {
+              "name": "publish_listing",
+              "context": {
+                "title": {
+                  "@path": "/preview/title"
+                },
+                "description": {
+                  "@path": "/preview/description"
+                },
+                "askingPrice": {
+                  "@path": "/pricing/askingPrice"
+                },
+                "currency": "USD",
+                "category": "car"
+              }
+            }
+          }
+        }
+      ],
+      "dataModel": {
+        "pricing": {
+          "askingPrice": 16200,
+          "rationale": "Fair range. Condition rated 'Good' by Jev."
+        },
+        "preview": {
+          "title": "2021 Mazda CX-30",
+          "description": "Clean SUV."
+        }
+      }
+    }
+  }
+]

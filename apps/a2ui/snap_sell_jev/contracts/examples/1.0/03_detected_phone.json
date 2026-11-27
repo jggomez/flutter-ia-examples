@@ -1,0 +1,222 @@
+[
+  {
+    "version": "1.0",
+    "createSurface": {
+      "surfaceId": "selling_step_1_detected",
+      "catalogId": "https://snap-sell.devhack.dev/a2ui/v1.0/snap_sell_catalog.json",
+      "sendDataModel": true,
+      "components": [
+        {
+          "id": "root",
+          "component": "Column",
+          "justify": "start",
+          "align": "stretch",
+          "children": [
+            "step_progress",
+            "detected_phone_card",
+            "phone_questions_card",
+            "continue_phone_btn"
+          ]
+        },
+        {
+          "id": "step_progress",
+          "component": "StepProgress",
+          "currentStep": 1,
+          "totalSteps": 4,
+          "stepLabels": [
+            "Detected",
+            "Follow-up",
+            "Preview",
+            "Published"
+          ],
+          "subtitle": "Confirm smartphone details and answer internal specs."
+        },
+        {
+          "id": "detected_phone_card",
+          "component": "DetectedItemCard",
+          "category": "phone",
+          "imageUrl": {
+            "@path": "/detected/imageUrl"
+          },
+          "confidence": 0.96,
+          "summary": {
+            "@path": "/detected/summary"
+          },
+          "fields": [
+            {
+              "key": "brand",
+              "label": "Brand",
+              "value": {
+                "@path": "/detected/brand"
+              },
+              "editable": true
+            },
+            {
+              "key": "model",
+              "label": "Model",
+              "value": {
+                "@path": "/detected/model"
+              },
+              "editable": true
+            },
+            {
+              "key": "year",
+              "label": "Release Year",
+              "value": {
+                "@path": "/detected/year"
+              },
+              "editable": true
+            },
+            {
+              "key": "color",
+              "label": "Finish / Color",
+              "value": {
+                "@path": "/detected/color"
+              },
+              "editable": true
+            }
+          ]
+        },
+        {
+          "id": "phone_questions_card",
+          "component": "Card",
+          "child": "phone_questions_col"
+        },
+        {
+          "id": "phone_questions_col",
+          "component": "Column",
+          "justify": "start",
+          "align": "stretch",
+          "children": [
+            "phone_questions_title",
+            "storage_picker",
+            "battery_slider",
+            "unlocked_checkbox",
+            "phone_damage_checkbox"
+          ]
+        },
+        {
+          "id": "phone_questions_title",
+          "component": "Text",
+          "variant": "body",
+          "text": "### Storage, Battery & Carrier Status"
+        },
+        {
+          "id": "storage_picker",
+          "component": "ChoicePicker",
+          "label": "Internal Storage",
+          "variant": "mutuallyExclusive",
+          "displayStyle": "chips",
+          "options": [
+            {
+              "label": "128 GB",
+              "value": "128"
+            },
+            {
+              "label": "256 GB",
+              "value": "256"
+            },
+            {
+              "label": "512 GB",
+              "value": "512"
+            },
+            {
+              "label": "1 TB",
+              "value": "1024"
+            }
+          ],
+          "value": {
+            "@path": "/details/storageGb"
+          }
+        },
+        {
+          "id": "battery_slider",
+          "component": "Slider",
+          "label": "Maximum Battery Capacity (%)",
+          "min": 50,
+          "max": 100,
+          "value": {
+            "@path": "/details/batteryHealthPct"
+          }
+        },
+        {
+          "id": "unlocked_checkbox",
+          "component": "CheckBox",
+          "label": "Factory unlocked for all carriers",
+          "value": {
+            "@path": "/details/unlocked"
+          }
+        },
+        {
+          "id": "phone_damage_checkbox",
+          "component": "CheckBox",
+          "label": "Screen cracks, deep scratches, or FaceID/camera issues",
+          "value": {
+            "@path": "/details/hasDamage"
+          }
+        },
+        {
+          "id": "continue_phone_label",
+          "component": "Text",
+          "text": "Continue"
+        },
+        {
+          "id": "continue_phone_btn",
+          "component": "Button",
+          "variant": "primary",
+          "child": "continue_phone_label",
+          "action": {
+            "event": {
+              "name": "submit_detected_details",
+              "context": {
+                "category": "phone",
+                "brand": {
+                  "@path": "/detected/brand"
+                },
+                "model": {
+                  "@path": "/detected/model"
+                },
+                "year": {
+                  "@path": "/detected/year"
+                },
+                "color": {
+                  "@path": "/detected/color"
+                },
+                "storageGb": {
+                  "@path": "/details/storageGb"
+                },
+                "batteryHealthPct": {
+                  "@path": "/details/batteryHealthPct"
+                },
+                "unlocked": {
+                  "@path": "/details/unlocked"
+                },
+                "hasDamage": {
+                  "@path": "/details/hasDamage"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "dataModel": {
+        "detected": {
+          "imageUrl": "http://10.0.2.2:8080/uploads/demo/iphone_15_pro.jpg",
+          "summary": "Apple iPhone 15 Pro in Natural Titanium, triple-camera housing intact.",
+          "brand": "Apple",
+          "model": "iPhone 15 Pro",
+          "year": "2023",
+          "color": "Natural Titanium"
+        },
+        "details": {
+          "storageGb": [
+            "256"
+          ],
+          "batteryHealthPct": 91,
+          "unlocked": true,
+          "hasDamage": false
+        }
+      }
+    }
+  }
+]

@@ -1,0 +1,20 @@
+metrics_to_run:
+  - custom_response_quality
+  - a2ui_surface_check
+
+custom_metrics:
+  # Default: local LLM-as-judge (see response_quality.py). Runs in-process via
+  # google-genai on Gemini platform (ADC) or Google AI Studio (GEMINI_API_KEY).
+  - name: custom_response_quality
+    custom_function_file: response_quality.py
+  - name: a2ui_surface_check
+    custom_function: |
+      def evaluate(instance):
+          resp = str(instance.get("response", ""))
+          has_a2ui = "<a2ui-json>" in resp or "createSurface" in resp
+          return {"score": 1 if has_a2ui else 0}
+  - name: agent_turn_count
+    custom_function: |
+      def evaluate(instance):
+          turns = (instance.get("agent_data") or {}).get("turns", [])
+          return {'score': len(turns)}

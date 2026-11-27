@@ -1,0 +1,93 @@
+[
+  {
+    "version": "1.0",
+    "createSurface": {
+      "surfaceId": "selling_step_2_followup",
+      "catalogId": "https://snap-sell.devhack.dev/a2ui/v1.0/snap_sell_catalog.json",
+      "sendDataModel": true,
+      "components": [
+        {
+          "id": "root",
+          "component": "Column",
+          "justify": "start",
+          "align": "stretch",
+          "children": [
+            "step_progress",
+            "damage_photo_request",
+            "damage_notes_field",
+            "continue_followup_btn"
+          ]
+        },
+        {
+          "id": "step_progress",
+          "component": "StepProgress",
+          "currentStep": 2,
+          "totalSteps": 4,
+          "stepLabels": [
+            "Detected",
+            "Follow-up",
+            "Preview",
+            "Published"
+          ],
+          "subtitle": "Add quick photos so we can document the reported damage."
+        },
+        {
+          "id": "damage_photo_request",
+          "component": "PhotoRequest",
+          "requestType": "damage",
+          "title": "Close-up of Reported Damage",
+          "instructions": "Take a well-lit close-up of the scratch or dent so buyers have full transparency.",
+          "actionName": "upload_followup_photo",
+          "targetPath": "/followup/damagePhotoUrl",
+          "previewUrl": {
+            "@path": "/followup/damagePhotoUrl"
+          },
+          "required": true
+        },
+        {
+          "id": "damage_notes_field",
+          "component": "TextField",
+          "label": "Brief description of the damage",
+          "variant": "longText",
+          "value": {
+            "@path": "/followup/damageNotes"
+          }
+        },
+        {
+          "id": "continue_followup_btn_label",
+          "component": "Text",
+          "text": "Generate Listing Preview"
+        },
+        {
+          "id": "continue_followup_btn",
+          "component": "Button",
+          "variant": "primary",
+          "child": "continue_followup_btn_label",
+          "action": {
+            "event": {
+              "name": "submit_followup",
+              "context": {
+                "odometerPhotoUrl": {
+                  "@path": "/followup/odometerPhotoUrl"
+                },
+                "damagePhotoUrl": {
+                  "@path": "/followup/damagePhotoUrl"
+                },
+                "damageNotes": {
+                  "@path": "/followup/damageNotes"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "dataModel": {
+        "followup": {
+          "odometerPhotoUrl": "",
+          "damagePhotoUrl": "",
+          "damageNotes": ""
+        }
+      }
+    }
+  }
+]
